@@ -1247,8 +1247,9 @@ function generatePage(pageFile){
   // ── shared effects ──
   const scrubCss = hasVideo ? `
 .scrub-hero{position:relative;height:${Math.max(300, state.frames.length*8)}vh}
-.scrub-hero canvas{position:sticky;top:0;width:100%;height:100vh;object-fit:cover;display:block}
-.scrub-overlay{position:fixed;top:0;left:0;right:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 7vw;pointer-events:none;z-index:2}
+.scrub-sticky{position:sticky;top:0;height:100vh;overflow:hidden}
+.scrub-hero canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:${light?'#F6F5F2':'#07080F'}}
+.scrub-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 7vw;pointer-events:none;z-index:2}
 .scrub-overlay>*{pointer-events:auto}` : '';
   const alignCss = S.align==='center'
     ? `.hero-content{align-items:center;text-align:center}.hero-content h1,.hero-content p{margin-left:auto;margin-right:auto}`
@@ -1258,11 +1259,13 @@ const FRAME_COUNT=${state.frames.length};
 const FRAMES=Array.from({length:FRAME_COUNT},(_,i)=>'frames/f'+i+'.jpg');
 const cv=document.getElementById('scrubCanvas'),cx=cv.getContext('2d'),hero=document.getElementById('scrubHero');
 const imgs=FRAMES.map(s=>{const i=new Image();i.src=s;return i});
-let ready=0;imgs.forEach(i=>i.onload=()=>{ready++;if(ready===1)size()});
-function size(){cv.width=innerWidth;cv.height=innerHeight;draw(cur)}
+let loaded=0;imgs.forEach(i=>i.onload=()=>{loaded++;draw(cur)});
+function size(){const dpr=Math.min(devicePixelRatio||1,2);cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;cx.setTransform(dpr,0,0,dpr,0,0);draw(cur)}
 addEventListener('resize',size);let cur=0;
-function draw(idx){const im=imgs[Math.max(0,Math.min(imgs.length-1,Math.round(idx)))];if(!im||!im.complete)return;const r=Math.max(cv.width/im.width,cv.height/im.height);const w=im.width*r,h=im.height*r;cx.drawImage(im,(cv.width-w)/2,(cv.height-h)/2,w,h)}
-function onScroll(){const rect=hero.getBoundingClientRect();const total=hero.offsetHeight-innerHeight;const p=Math.min(1,Math.max(0,(-rect.top)/total));cur=p*(imgs.length-1);draw(cur);const ov=document.querySelector('.scrub-overlay');if(ov)ov.style.opacity=String(1-Math.min(1,p*1.4))}
+function nearest(idx){idx=Math.max(0,Math.min(imgs.length-1,Math.round(idx)));if(imgs[idx]&&imgs[idx].complete&&imgs[idx].naturalWidth)return imgs[idx];for(let d=1;d<imgs.length;d++){const a=idx-d,b=idx+d;if(a>=0&&imgs[a]&&imgs[a].complete&&imgs[a].naturalWidth)return imgs[a];if(b<imgs.length&&imgs[b]&&imgs[b].complete&&imgs[b].naturalWidth)return imgs[b];}return null}
+function draw(idx){const im=nearest(idx);if(!im)return;const W=innerWidth,H=innerHeight,r=Math.max(W/im.naturalWidth,H/im.naturalHeight),w=im.naturalWidth*r,h=im.naturalHeight*r;cx.clearRect(0,0,W,H);cx.drawImage(im,(W-w)/2,(H-h)/2,w,h)}
+let ticking=false;
+function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(()=>{const rect=hero.getBoundingClientRect();const total=hero.offsetHeight-innerHeight;const p=total>0?Math.min(1,Math.max(0,(-rect.top)/total)):0;cur=p*(imgs.length-1);draw(cur);const ov=document.querySelector('.scrub-overlay');if(ov)ov.style.opacity=String(1-Math.min(1,p*1.5));ticking=false})}
 addEventListener('scroll',onScroll,{passive:true});size();onScroll();` : '';
   const revealJs = `
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
@@ -1383,8 +1386,8 @@ function pageBody(pageFile, S, o){
       ${S.sub?`<p data-reveal>${S.sub}</p>`:''}
       <div data-reveal>${heroBtns}</div>`;
     const hero = o.hasVideo ? `
-<section class="scrub-hero" id="scrubHero"><canvas id="scrubCanvas"></canvas>
-  <div class="scrub-overlay hero-content">${heroInner}</div></section>`
+<section class="scrub-hero" id="scrubHero"><div class="scrub-sticky"><canvas id="scrubCanvas"></canvas>
+  <div class="scrub-overlay hero-content">${heroInner}</div></div></section>`
       : `<section class="plain-hero hero-content">${heroInner}</section>`;
     const sec = buildSection(S.secStyle, S.secHead, {radius:S.radius,cWidth:S.cWidth,tileBg:o.tileBg,tileBor:o.tileBor,textCol:o.textCol,subCol:o.subCol,accent:S.accent,fDisp:S.fDisp,hoverLift:S.hoverLift});
 
