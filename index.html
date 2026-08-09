@@ -1231,8 +1231,8 @@ function generatePage(pageFile){
 <header class="nav ${S.navStyle}"><a class="nav-logo" href="index.html">${S.name}</a>
 <nav class="nav-links">${PAGES.map(p=>`<a href="${p.file}"${p.file===pageFile?' class="active"':''}>${p.nav}</a>`).join('')}${S.cta?`<a class="nav-cta" href="contact.html">${S.cta}</a>`:''}</nav></header>`;
   const navCss = S.navStyle==='none' ? '' : `
-.nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 7vw}
-.nav.glass{background:${light?'rgba(246,245,242,.7)':'rgba(7,8,15,.6)'};backdrop-filter:blur(16px);border-bottom:1px solid ${tileBor}}
+.nav{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 7vw}
+.nav.glass{background:${light?'rgba(246,245,242,.85)':'rgba(7,8,15,.82)'};backdrop-filter:blur(16px);border-bottom:1px solid ${tileBor}}
 .nav.solid{background:${pageBg};border-bottom:1px solid ${tileBor}}
 .nav-logo{font-family:'${S.fDisp}',serif;font-weight:800;font-size:1.15rem;letter-spacing:.02em;color:${textCol};text-decoration:none}
 .nav-links{display:flex;gap:1.5rem;align-items:center}
@@ -1246,7 +1246,7 @@ function generatePage(pageFile){
 
   // ── shared effects ──
   const scrubCss = hasVideo ? `
-.scrub-hero{position:relative;height:${Math.max(300, state.frames.length*8)}vh}
+.scrub-hero{position:relative;z-index:1;height:${Math.max(300, state.frames.length*8)}vh}
 .scrub-sticky{position:sticky;top:0;height:100vh;overflow:hidden}
 .scrub-hero canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;background:${light?'#F6F5F2':'#07080F'}}
 .scrub-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 7vw;pointer-events:none;z-index:2}
@@ -1295,7 +1295,7 @@ addEventListener('mousemove',e=>{cg.style.left=e.clientX+'px';cg.style.top=e.cli
 :root{--accent:${S.accent};--r:${S.radius}px}
 html{scroll-behavior:smooth}
 body{background:${pageBg};color:${textCol};font-family:'${S.fBody}',sans-serif;line-height:1.6;overflow-x:hidden}
-.hero-content,.scrub-hero,section.content,.nav,footer{position:relative;z-index:1}
+.hero-content,section.content,footer{position:relative;z-index:1}
 ${bg.css}
 ${scrubCss}
 ${alignCss}
