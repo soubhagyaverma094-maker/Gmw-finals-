@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GetMyWebsite — Website Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080F;--surface:#0E1020;--card:#131629;--border:rgba(255,255,255,0.07);
+  --accent:#5B5FFF;--accent2:#A259FF;--green:#00E5A0;--red:#FF5C7A;--yellow:#FFB930;
+  --text:#E8EAF6;--muted:#7B80A8;--white:#FFFFFF;
+  --grad:linear-gradient(135deg,#5B5FFF 0%,#A259FF 100%);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden}
+a{color:inherit}
+
+nav{position:sticky;top:0;z-index:200;height:60px;padding:0 3%;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,15,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:#fff;letter-spacing:-.5px;text-decoration:none}
+.logo span{color:var(--accent)}
+.nav-actions{display:flex;gap:.6rem;align-items:center}
+
+.btn{border:none;border-radius:9px;font-weight:600;font-size:.85rem;cursor:pointer;transition:transform .15s,opacity .15s,box-shadow .15s;padding:.6rem 1.15rem;display:inline-flex;align-items:center;gap:.45rem}
+.btn-grad{background:var(--grad);color:#fff;box-shadow:0 6px 22px rgba(91,95,255,.3)}
+.btn-grad:hover{transform:translateY(-1px);box-shadow:0 10px 30px rgba(91,95,255,.42)}
+.btn-grad:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:#fff}
+
+.layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 60px)}
+.panel{background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;max-height:calc(100vh - 60px)}
+.panel-inner{padding:1.4rem 1.3rem 3rem}
+.stage{position:relative;background:#0a0b14;overflow:hidden}
+
+.panel-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:#fff;margin-bottom:.25rem}
+.panel-sub{color:var(--muted);font-size:.8rem;margin-bottom:1.4rem;line-height:1.5}
+
+.group{border:1px solid var(--border);border-radius:12px;margin-bottom:1rem;overflow:hidden;background:var(--card)}
+.group-head{display:flex;align-items:center;gap:.6rem;padding:.85rem 1rem;cursor:pointer;user-select:none;font-weight:600;font-size:.88rem;color:#fff}
+.group-head .ico{font-size:1rem}
+.group-head .chev{margin-left:auto;color:var(--muted);transition:transform .2s;font-size:.75rem}
+.group.open .chev{transform:rotate(90deg)}
+.group-body{padding:0 1rem 1rem;display:none}
+.group.open .group-body{display:block}
+
+label.fld{display:block;font-size:.72rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:.9rem 0 .35rem}
+input[type=text],input[type=password],textarea,select{width:100%;background:#0b0d1a;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:inherit;font-size:.85rem;padding:.6rem .7rem;transition:border-color .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent)}
+textarea{resize:vertical;min-height:64px}
+
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;margin-top:.4rem}
+.swatch{aspect-ratio:1;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:transform .12s,border-color .12s}
+.swatch:hover{transform:scale(1.08)}
+.swatch.sel{border-color:#fff}
+
+.bg-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-top:.5rem}
+.bg-opt{border:1px solid var(--border);border-radius:10px;padding:.7rem;cursor:pointer;font-size:.78rem;font-weight:500;text-align:center;color:var(--muted);transition:border-color .15s,color .15s;position:relative;overflow:hidden;min-height:58px;display:flex;align-items:flex-end;justify-content:center}
+.bg-opt:hover{border-color:var(--accent);color:#fff}
+.bg-opt.sel{border-color:var(--accent);color:#fff}
+.bg-opt .prev{position:absolute;inset:0;opacity:.85}
+.bg-opt span{position:relative;z-index:1;background:rgba(7,8,15,.6);padding:.1rem .4rem;border-radius:5px}
+
+.uploader{border:1.5px dashed rgba(255,255,255,.16);border-radius:12px;padding:1.4rem 1rem;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;margin-top:.5rem}
+.uploader:hover{border-color:var(--accent);background:rgba(91,95,255,.05)}
+.uploader .big{font-size:1.6rem;margin-bottom:.4rem}
+.uploader .t{font-weight:600;font-size:.85rem;color:#fff}
+.uploader .s{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+.progress{margin-top:.9rem;display:none}
+.progress.show{display:block}
+.bar{height:7px;background:#0b0d1a;border-radius:20px;overflow:hidden;border:1px solid var(--border)}
+.bar-fill{height:100%;width:0;background:var(--grad);transition:width .25s;border-radius:20px}
+.prog-label{font-size:.74rem;color:var(--muted);margin-top:.4rem;display:flex;justify-content:space-between}
+.prog-label b{color:var(--green);font-weight:600}
+
+.thumbs{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.7rem}
+.thumbs img{width:44px;height:auto;border-radius:5px;border:1px solid var(--border)}
+
+.range-row{display:flex;align-items:center;gap:.7rem;margin-top:.5rem}
+.range-row input[type=range]{flex:1;accent-color:var(--accent)}
+.range-row b{font-size:.8rem;color:#fff;min-width:44px;text-align:right;font-weight:600}
+
+.note{font-size:.72rem;color:var(--muted);line-height:1.5;margin-top:.55rem;padding:.6rem .7rem;background:rgba(91,95,255,.06);border:1px solid rgba(91,95,255,.18);border-radius:8px}
+.note.warn{background:rgba(255,185,48,.06);border-color:rgba(255,185,48,.22)}
+
+.iframe-wrap{position:absolute;inset:0}
+iframe{width:100%;height:100%;border:none;background:#000}
+.stage-empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:2rem;gap:.6rem}
+.stage-empty .big{font-size:2.6rem}
+.stage-bar{position:absolute;top:0;left:0;right:0;height:42px;background:rgba(7,8,15,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.6rem;padding:0 .9rem;z-index:5;font-size:.78rem;color:var(--muted)}
+.stage-bar .dot{width:9px;height:9px;border-radius:50%}
+.dot.g{background:var(--green)}.dot.y{background:var(--yellow)}.dot.r{background:var(--red)}
+.url-pill{margin-left:auto;background:#0b0d1a;border:1px solid var(--border);border-radius:7px;padding:.3rem .7rem;font-size:.75rem;color:var(--text);max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.page-tabs{display:flex;gap:.25rem;align-items:center;overflow-x:auto;max-width:52%}
+.page-tabs button{background:transparent;border:1px solid transparent;color:var(--muted);font-size:.74rem;font-weight:500;padding:.28rem .6rem;border-radius:6px;cursor:pointer;white-space:nowrap;transition:.15s}
+.page-tabs button:hover{color:var(--text)}
+.page-tabs button.active{background:rgba(91,95,255,.16);color:#fff;border-color:rgba(91,95,255,.3)}
+.url-pill a{color:var(--accent);text-decoration:none}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.9rem 1.3rem;box-shadow:0 20px 60px rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;gap:.7rem;transition:transform .3s;max-width:90vw}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast .ic{font-size:1.2rem}
+.toast .msg{font-size:.85rem}
+.toast .msg b{color:#fff;display:block;font-weight:600}
+.toast .msg a{color:var(--accent);text-decoration:none;font-size:.8rem}
+
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr}
+  .panel{max-height:none;border-right:none;border-bottom:1px solid var(--border)}
+  .stage{min-height:70vh}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="AdwikFlow___All-in-One_Business_Platform.html" class="logo">GetMy<span>Website</span> · Builder</a>
+  <div class="nav-actions">
+    <button class="btn btn-ghost" onclick="newWebsite()">✨ New website</button>
+    <button class="btn btn-ghost" onclick="openSettings()">⚙️ Vercel</button>
+    <button class="btn btn-ghost" onclick="downloadSite()">⬇️ Download</button>
+    <button class="btn btn-grad" id="publishBtn" onclick="publish()">🚀 Publish</button>
+  </div>
+</nav>
+
+<div class="layout">
+  <!-- ══════════ CONTROL PANEL ══════════ -->
+  <aside class="panel">
+    <div class="panel-inner">
+      <div class="panel-title">Build your site</div>
+      <div class="panel-sub">Set content, drop a video for the scroll hero, pick a background, then publish. Each publish gets its own live domain.</div>
+
+      <!-- CONTENT -->
+      <div class="group open">
+        <div class="group-head" onclick="tog(this)"><span class="ico">✏️</span> Content <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Site name</label>
+          <input type="text" id="siteName" value="Twelve Twelve" oninput="render()">
+          <label class="fld">Hero headline</label>
+          <input type="text" id="heroTitle" value="Luxury, redefined." oninput="render()">
+          <label class="fld">Hero subtext</label>
+          <textarea id="heroSub" oninput="render()">A fashion house built on craft, restraint, and quiet confidence.</textarea>
+          <label class="fld">Eyebrow / badge (optional)</label>
+          <input type="text" id="heroBadge" value="Est. 2024 · Made to order" oninput="render()">
+          <label class="fld">Primary button</label>
+          <input type="text" id="ctaText" value="Explore the collection" oninput="render()">
+          <label class="fld">Secondary button (optional)</label>
+          <input type="text" id="ctaText2" value="Book a fitting" oninput="render()">
+          <label class="fld">Hero alignment</label>
+          <select id="heroAlign" onchange="render()">
+            <option value="center">Center</option>
+            <option value="left">Left</option>
+          </select>
+
+          <label class="fld">Home story image / logo</label>
+          <div class="uploader" style="padding:1rem" onclick="document.getElementById('storyImgInput').click()">
+            <div class="big" style="font-size:1.3rem">🖼️</div>
+            <div class="t">Upload image</div>
+            <div class="s">Shows in the story section on Home</div>
+          </div>
+          <input type="file" id="storyImgInput" accept="image/*" style="display:none" onchange="handleStoryImage(event)">
+          <label class="fld">…or paste image URL</label>
+          <input type="text" id="storyImgUrl" placeholder="https://res.cloudinary.com/..." oninput="setStoryImageUrl(this.value)">
+          <div id="storyImgActions" style="display:none;margin-top:.5rem">
+            <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="clearStoryImage()">✕ Remove image</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE CONTENT (dynamic, follows selected page) -->
+      <div class="group open">
+        <div class="group-head" onclick="tog(this)"><span class="ico">📄</span> Page content <span class="chev">▶</span></div>
+        <div class="group-body">
+          <div class="panel-sub" style="margin-bottom:.6rem">Editing: <b id="curPageLabel" style="color:#fff">Home</b> — switch pages using the tabs above the preview.</div>
+          <div id="pageContentFields"></div>
+        </div>
+      </div>
+
+      <!-- VIDEO SCROLL HERO -->
+      <div class="group open">
+        <div class="group-head" onclick="tog(this)"><span class="ico">🎬</span> Video scroll hero <span class="chev">▶</span></div>
+        <div class="group-body">
+          <div class="uploader" onclick="document.getElementById('videoInput').click()">
+            <div class="big">🎞️</div>
+            <div class="t">Drop a video</div>
+            <div class="s">MP4 / MOV / WebM · turns into a scroll-scrub animation</div>
+          </div>
+          <input type="file" id="videoInput" accept="video/mp4,video/quicktime,video/webm,video/*" style="display:none" onchange="handleVideo(event)">
+          <div class="note">Best results with <b>MP4 (H.264)</b>. Some HEVC/H.265 clips from iPhone won't decode in the browser — if a video fails, re-export or share it as MP4, or the builder will auto-retry with ffmpeg.</div>
+          <div class="note">Tip: keep the video short. A big video makes the page too large to publish (413 error). If publish fails, lower frames/width/quality below, or skip the video.</div>
+          <div class="prog-label" style="margin-top:.5rem"><span>Loaded:</span><b id="vidMeta" style="color:var(--muted);font-weight:500">none</b></div>
+
+          <label class="fld">Extraction method</label>
+          <select id="extractMethod">
+            <option value="seek">Seek — best for BIG / long videos (recommended)</option>
+            <option value="ffmpeg">ffmpeg — max quality, short clips only</option>
+          </select>
+          <div class="note">Seek mode streams the video through the browser and samples frames evenly across the <b>whole</b> clip — so a 2-minute 4K file works, not just short ones. Use ffmpeg mode only for short, crisp clips.</div>
+
+          <label class="fld">Frames to extract</label>
+          <div class="range-row">
+            <input type="range" id="frameCount" min="24" max="180" value="60" step="6" oninput="document.getElementById('fcVal').textContent=this.value">
+            <b id="fcVal">60</b>
+          </div>
+
+          <label class="fld">Frame width (resolution)</label>
+          <select id="frameRes">
+            <option value="960">960px — lightest file</option>
+            <option value="1280" selected>1280px — balanced</option>
+            <option value="1600">1600px — sharp</option>
+            <option value="1920">1920px — full HD (heavy)</option>
+          </select>
+
+          <label class="fld">JPEG quality</label>
+          <div class="range-row">
+            <input type="range" id="jpgQ" min="0.4" max="0.92" value="0.7" step="0.02" oninput="document.getElementById('qVal').textContent=Math.round(this.value*100)+'%'">
+            <b id="qVal">70%</b>
+          </div>
+          <div class="note warn">Frames are baked into the site as one file. Big × many × high-quality = a large page that may fail to publish. If publish fails, lower these three. ~60 frames at 1280px/70% is a safe single-file hero.</div>
+
+          <div class="progress" id="vidProgress">
+            <div class="bar"><div class="bar-fill" id="vidBar"></div></div>
+            <div class="prog-label"><span id="vidStatus">Loading engine…</span><b id="vidPct">0%</b></div>
+          </div>
+          <div class="thumbs" id="vidThumbs"></div>
+        </div>
+      </div>
+
+      <!-- BACKGROUND / ANIMATION -->
+      <div class="group open">
+        <div class="group-head" onclick="tog(this)"><span class="ico">🌌</span> Background & animation <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Background style</label>
+          <div class="bg-grid" id="bgGrid"></div>
+
+          <label class="fld">Accent color</label>
+          <div class="swatches" id="accentSwatches"></div>
+
+          <label class="fld">Scroll reveal animation</label>
+          <select id="revealAnim" onchange="render()">
+            <option value="fade-up">Fade up</option>
+            <option value="fade">Fade in</option>
+            <option value="zoom">Zoom in</option>
+            <option value="slide-left">Slide from left</option>
+            <option value="blur">Blur in</option>
+            <option value="none">None</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TYPOGRAPHY -->
+      <div class="group">
+        <div class="group-head" onclick="tog(this)"><span class="ico">🔤</span> Typography <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Display font (headings)</label>
+          <select id="fontDisplay" onchange="render()">
+            <option value="Syne">Syne — modern, bold</option>
+            <option value="Playfair Display">Playfair Display — luxury serif</option>
+            <option value="Cormorant Garamond">Cormorant — high-fashion serif</option>
+            <option value="Space Grotesk">Space Grotesk — techy</option>
+            <option value="Bebas Neue">Bebas Neue — tall condensed</option>
+            <option value="DM Serif Display">DM Serif — editorial</option>
+            <option value="Archivo Black">Archivo Black — heavy sans</option>
+          </select>
+          <label class="fld">Body font</label>
+          <select id="fontBody" onchange="render()">
+            <option value="Inter">Inter — clean neutral</option>
+            <option value="DM Sans">DM Sans — friendly</option>
+            <option value="Manrope">Manrope — geometric</option>
+            <option value="Work Sans">Work Sans — warm</option>
+            <option value="Lora">Lora — readable serif</option>
+          </select>
+          <label class="fld">Heading size</label>
+          <div class="range-row">
+            <input type="range" id="headScale" min="3" max="7" value="5" step="0.5" oninput="document.getElementById('hsVal').textContent=this.value+'rem';render()">
+            <b id="hsVal">5rem</b>
+          </div>
+          <label class="fld">Letter spacing</label>
+          <select id="letterSpace" onchange="render()">
+            <option value="-.03em">Tight</option>
+            <option value="0">Normal</option>
+            <option value=".04em">Wide</option>
+            <option value=".14em">Extra wide (luxury)</option>
+          </select>
+          <label class="fld">Text case (headings)</label>
+          <select id="textCase" onchange="render()">
+            <option value="none">As typed</option>
+            <option value="uppercase">UPPERCASE</option>
+            <option value="capitalize">Title Case</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LAYOUT & SECTIONS -->
+      <div class="group">
+        <div class="group-head" onclick="tog(this)"><span class="ico">🧱</span> Layout & sections <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Sections below hero</label>
+          <select id="sectionStyle" onchange="render()">
+            <option value="cards">Feature cards (3 tiles)</option>
+            <option value="split">Split image + text</option>
+            <option value="stats">Big stats row</option>
+            <option value="gallery">Gallery grid</option>
+            <option value="minimal">Minimal statement</option>
+          </select>
+          <label class="fld">Section heading</label>
+          <input type="text" id="secHeading" value="The collection" oninput="render()">
+          <label class="fld">Corner radius</label>
+          <div class="range-row">
+            <input type="range" id="radius" min="0" max="28" value="16" step="2" oninput="document.getElementById('rVal').textContent=this.value+'px';render()">
+            <b id="rVal">16px</b>
+          </div>
+          <label class="fld">Content width</label>
+          <select id="contentWidth" onchange="render()">
+            <option value="1100">Standard</option>
+            <option value="1300">Wide</option>
+            <option value="860">Narrow (editorial)</option>
+          </select>
+          <label class="fld">Navbar</label>
+          <select id="navStyle" onchange="render()">
+            <option value="solid">Solid bar</option>
+            <option value="glass">Glass blur</option>
+            <option value="none">No navbar</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- EFFECTS -->
+      <div class="group">
+        <div class="group-head" onclick="tog(this)"><span class="ico">✨</span> Effects <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Scroll reveal (repeat)</label>
+          <div class="note" style="margin-top:.2rem">Reveal animation is set in Background & animation above.</div>
+          <label class="fld">Cursor glow</label>
+          <select id="cursorGlow" onchange="render()">
+            <option value="off">Off</option>
+            <option value="on">Follow-cursor glow</option>
+          </select>
+          <label class="fld">Hover lift on cards</label>
+          <select id="hoverLift" onchange="render()">
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+          <label class="fld">Text gradient on headline</label>
+          <select id="gradText" onchange="render()">
+            <option value="off">Off</option>
+            <option value="on">On (accent gradient)</option>
+          </select>
+          <label class="fld">Grain overlay</label>
+          <select id="grainOverlay" onchange="render()">
+            <option value="off">Off</option>
+            <option value="on">Subtle film grain</option>
+          </select>
+          <label class="fld">Dark / light</label>
+          <select id="themeMode" onchange="render()">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- DOMAIN -->
+      <div class="group">
+        <div class="group-head" onclick="tog(this)"><span class="ico">🌐</span> Domain <span class="chev">▶</span></div>
+        <div class="group-body">
+          <label class="fld">Base slug</label>
+          <input type="text" id="slug" value="twelve-twelve" oninput="previewDomain()">
+          <label class="fld">Next domain (auto-generated)</label>
+          <input type="text" id="domainPreview" readonly>
+          <div class="note">A fresh unique domain is generated on every publish so old sites never get overwritten. Click below to roll a new one.</div>
+          <button class="btn btn-ghost" style="margin-top:.7rem;width:100%;justify-content:center" onclick="previewDomain(true)">🎲 New domain</button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ══════════ LIVE PREVIEW ══════════ -->
+  <section class="stage">
+    <div class="stage-bar">
+      <span class="dot g"></span><span class="dot y"></span><span class="dot r"></span>
+      <div class="page-tabs" id="pageTabs"></div>
+      <span class="url-pill" id="urlPill">not published yet</span>
+    </div>
+    <div class="iframe-wrap"><iframe id="preview"></iframe></div>
+  </section>
+</div>
+
+<div class="toast" id="toast"><span class="ic">✅</span><div class="msg" id="toastMsg"></div></div>
+
+<!-- Settings modal (Vercel token) -->
+<div id="settingsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.6rem;max-width:460px;width:90%;max-height:88vh;overflow-y:auto">
+    <div class="panel-title" style="margin-bottom:.3rem">One-click Publish (advanced)</div>
+    <div class="note" style="margin-bottom:1rem">Easiest way to go live: close this and use <b>⬇️ Download</b> → upload the folder to vercel.com. No setup needed.<br><br>This screen is only for automatic one-click publishing, which needs a backend step first.</div>
+    <div class="panel-sub" style="margin-bottom:1rem">Setup once: (1) deploy the <b>api/deploy.js</b> file to a Vercel project, (2) add your token there as an env var, (3) paste that project's deploy URL below.</div>
+    <label class="fld">Vercel access token</label>
+    <input type="password" id="vercelToken" placeholder="paste token from vercel.com/account/tokens">
+    <label class="fld">Deploy endpoint URL</label>
+    <input type="text" id="deployEndpoint" placeholder="https://your-project.vercel.app/api/deploy">
+    <div class="note warn">The endpoint must be a full <b>https URL ending in /api/deploy</b> — NOT an email or the token. If you haven't deployed api/deploy.js yet, leave this blank and use <b>⬇️ Download</b> instead.</div>
+    <div style="display:flex;gap:.6rem;margin-top:1.1rem">
+      <button class="btn btn-ghost" style="flex:1;justify-content:center" onclick="closeSettings()">Cancel</button>
+      <button class="btn btn-grad" style="flex:1;justify-content:center" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+<script>
+/* ═══════════════════ STATE ═══════════════════ */
+const state = {
+  frames: [],        // base64 webp data URIs for the scroll hero
+  bg: 'aurora',
+  accent: '#5B5FFF',
+  currentDomain: '',
+  previewPage: 'index.html',
+  storyImage: ''   // home story image (data URL or pasted URL)
+};
+
+/* ═══════════ EDITABLE CONTENT STORE ═══════════
+   Every visible string lives here so it can be edited in the panel.
+   Home hero fields still come from the top Content group (siteName, heroTitle…). */
+const C = {
+  // About page
+  about_heading:'About us',
+  about_storyTitle:'Our story',
+  about_story1:'We were built on a simple idea: do the work properly, and let the results speak. We keep things small and deliberate so quality never slips.',
+  about_story2:'Every project gets the same care, whether it\u2019s the first or the hundredth.',
+  about_val1t:'Craft', about_val1d:'Details done right, not rushed.',
+  about_val2t:'Trust', about_val2d:'Clear communication, no surprises.',
+  about_val3t:'Results', about_val3d:'Work that actually performs.',
+  // Services page
+  serv_hero:'What we do', serv_heading:'Services',
+  serv_1t:'Strategy', serv_1d:'Professional strategy tailored to what your business actually needs.',
+  serv_2t:'Design',   serv_2d:'Clean, modern design that fits your brand and converts.',
+  serv_3t:'Delivery', serv_3d:'Built and shipped fast, without cutting corners.',
+  serv_4t:'Support',  serv_4d:'We stick around after launch to keep things running.',
+  serv_5t:'SEO',      serv_5d:'Found on Google by the customers who matter.',
+  serv_6t:'Consulting',serv_6d:'Straight advice on what will actually move the needle.',
+  // Gallery page
+  gal_hero:'Gallery', gal_heading:'Our work',
+  // Pricing page
+  price_hero:'Pricing', price_heading:'Simple pricing',
+  price_1name:'Starter', price_1price:'\u20B99,999', price_1feats:'Single page\nMobile ready\nBasic SEO', price_1cta:'Get started',
+  price_2name:'Growth', price_2price:'\u20B924,999', price_2feats:'Up to 6 pages\nAnimations\nFull SEO\nPriority support', price_2cta:'Choose Growth',
+  price_3name:'Premium', price_3price:'\u20B949,999', price_3feats:'Custom build\nAdvanced features\nOngoing care', price_3cta:'Talk to us',
+  // Contact page
+  con_hero:'Get in touch', con_formTitle:'Send a message', con_infoTitle:'Contact',
+  con_email:'getmywebsite.in121@gmail.com', con_whatsapp:'+91 83599 22242',
+  con_note:'We usually reply within a few hours.', con_btn:'Send'
+};
+// Snapshot of the original content, used by "New website" to reset.
+const C_DEFAULTS = JSON.parse(JSON.stringify(C));
+
+/* Field schema per page: [key, label, type]  type: 'text'|'area' */
+const CONTENT_SCHEMA = {
+  'index.html':[['__hint','Home hero is edited in the ✏️ Content group above.','hint']],
+  'about.html':[
+    ['about_heading','Page hero heading','text'],
+    ['about_storyTitle','Story title','text'],
+    ['about_story1','Story paragraph 1','area'],
+    ['about_story2','Story paragraph 2','area'],
+    ['about_val1t','Value 1 title','text'],['about_val1d','Value 1 text','text'],
+    ['about_val2t','Value 2 title','text'],['about_val2d','Value 2 text','text'],
+    ['about_val3t','Value 3 title','text'],['about_val3d','Value 3 text','text']
+  ],
+  'services.html':[
+    ['serv_hero','Page hero heading','text'],
+    ['serv_heading','Section heading','text'],
+    ['serv_1t','Service 1 title','text'],['serv_1d','Service 1 text','area'],
+    ['serv_2t','Service 2 title','text'],['serv_2d','Service 2 text','area'],
+    ['serv_3t','Service 3 title','text'],['serv_3d','Service 3 text','area'],
+    ['serv_4t','Service 4 title','text'],['serv_4d','Service 4 text','area'],
+    ['serv_5t','Service 5 title','text'],['serv_5d','Service 5 text','area'],
+    ['serv_6t','Service 6 title','text'],['serv_6d','Service 6 text','area']
+  ],
+  'gallery.html':[
+    ['gal_hero','Page hero heading','text'],
+    ['gal_heading','Section heading','text'],
+    ['__hint','Gallery tiles are colored placeholders — image upload can be added later.','hint']
+  ],
+  'pricing.html':[
+    ['price_hero','Page hero heading','text'],
+    ['price_heading','Section heading','text'],
+    ['price_1name','Plan 1 name','text'],['price_1price','Plan 1 price','text'],['price_1feats','Plan 1 features (one per line)','area'],['price_1cta','Plan 1 button','text'],
+    ['price_2name','Plan 2 name','text'],['price_2price','Plan 2 price','text'],['price_2feats','Plan 2 features (one per line)','area'],['price_2cta','Plan 2 button','text'],
+    ['price_3name','Plan 3 name','text'],['price_3price','Plan 3 price','text'],['price_3feats','Plan 3 features (one per line)','area'],['price_3cta','Plan 3 button','text']
+  ],
+  'contact.html':[
+    ['con_hero','Page hero heading','text'],
+    ['con_formTitle','Form title','text'],
+    ['con_infoTitle','Info title','text'],
+    ['con_email','Email','text'],
+    ['con_whatsapp','WhatsApp number','text'],
+    ['con_note','Footer note','area'],
+    ['con_btn','Send button label','text']
+  ]
+};
+
+const ACCENTS = ['#5B5FFF','#A259FF','#00E5A0','#FF5C7A','#FFB930','#0EA5E9','#F97316','#EC4899','#10B981','#111827','#D4AF37','#E8EAF6'];
+
+/* Background presets — each has a live CSS preview + the code injected into the published site */
+const BACKGROUNDS = {
+  aurora:   {label:'Aurora',   css:'background:radial-gradient(60% 60% at 30% 20%,rgba(91,95,255,.55),transparent),radial-gradient(50% 50% at 80% 70%,rgba(162,89,255,.5),transparent),#07080F'},
+  mesh:     {label:'Mesh',     css:'background:conic-gradient(from 180deg at 50% 50%,#5B5FFF,#A259FF,#00E5A0,#5B5FFF);filter:saturate(1.1)'},
+  blobs:    {label:'Floating blobs', anim:true},
+  particles:{label:'Particles', anim:true},
+  grain:    {label:'Noise grain', css:'background:#0b0d1a'},
+  solid:    {label:'Solid dark', css:'background:#07080F'},
+  gradient: {label:'Diagonal', css:'background:linear-gradient(135deg,#5B5FFF,#A259FF)'},
+  squares:  {label:'Interactive squares', anim:true},
+  shader:   {label:'Shader waves', anim:true},
+  dotgrid:  {label:'Dot grid', anim:true},
+  digits:   {label:'Digit stream', anim:true},
+  floatpaths:{label:'Floating paths', anim:true},
+  crystal:  {label:'Crystal trail', anim:true},
+  bubbles2: {label:'Bubble sketch', anim:true},
+  carousel: {label:'Color carousel', css:'background:conic-gradient(from 0deg at 50% 50%,#FF5F6D 0%,#FFC371 25%,#6DD5FA 50%,#B06AB3 75%,#FF5F6D 100%);filter:blur(2px)'},
+  spotlight:{label:'Spotlight + grain', anim:true}
+};
+
+/* ═══════════════════ UI WIRING ═══════════════════ */
+function tog(el){el.parentElement.classList.toggle('open')}
+
+function buildSwatches(){
+  const s = document.getElementById('accentSwatches');
+  s.innerHTML = ACCENTS.map(c=>`<div class="swatch${c===state.accent?' sel':''}" style="background:${c}" onclick="pickAccent('${c}')"></div>`).join('');
+}
+function pickAccent(c){state.accent=c;buildSwatches();render()}
+
+function buildBgGrid(){
+  const g = document.getElementById('bgGrid');
+  g.innerHTML = Object.entries(BACKGROUNDS).map(([k,v])=>{
+    const prev = v.css ? `<div class="prev" style="${v.css}"></div>` : `<div class="prev" style="background:linear-gradient(135deg,#131629,#0b0d1a)"></div>`;
+    return `<div class="bg-opt${k===state.bg?' sel':''}" onclick="pickBg('${k}')">${prev}<span>${v.label}</span></div>`;
+  }).join('');
+}
+function pickBg(k){state.bg=k;buildBgGrid();render()}
+
+/* ═══════════════════ VIDEO → FRAMES → SCROLL HERO ═══════════════════ */
+/* Big-video strategy:
+   1. Read real duration from a <video> element (no full decode in ffmpeg).
+   2. Seek-sample N frames EVENLY across the whole clip using -ss per frame,
+      so a 2-minute video works exactly like a 5-second one.
+   3. Chosen resolution keeps the baked-in single file publishable.        */
+let ffmpeg = null;
+
+/* Detect the Claude-preview sandbox: it blocks <video> src loading entirely.
+   We test with a tiny valid data-URI MP4. If it can't even fire loadedmetadata
+   or error within a short window, or errors with a network code, we're sandboxed. */
+function isSandboxed(){
+  return new Promise((resolve)=>{
+    // Quick structural check: many sandboxes null out URL.createObjectURL or
+    // run the doc from a null/blob origin. Try a tiny data-URI video.
+    const tiny='data:video/mp4;base64,AAAAHGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAALm1kYXQAAAAA';
+    let v=document.createElement('video');v.muted=true;v.preload='auto';
+    let settled=false;
+    const finish=(val)=>{ if(settled)return;settled=true;try{v.remove()}catch(_){ } resolve(val); };
+    v.onloadedmetadata=()=>finish(false); // video subsystem works → not blocked
+    v.onloadeddata=()=>finish(false);
+    v.onerror=()=>{
+      const code=v.error?v.error.code:0;
+      // code 2 = NETWORK (sandbox blocked the source) → sandboxed.
+      // code 4 = SRC_NOT_SUPPORTED on a truncated test clip is inconclusive → assume NOT sandboxed.
+      finish(code===2);
+    };
+    v.style.cssText='position:fixed;left:-9999px;width:1px;height:1px';
+    document.body.appendChild(v);
+    v.src=tiny;
+    // If nothing fires quickly, the sandbox is silently swallowing it → sandboxed.
+    setTimeout(()=>finish(true),2500);
+    try{v.load()}catch(_){finish(true)}
+  });
+}
+
+function getVideoMeta(file){
+  return new Promise((resolve,reject)=>{
+    const v = document.createElement('video');
+    // iOS Safari needs these + the element in the DOM to decode/seek reliably.
+    v.preload='auto';
+    v.muted=true;
+    v.playsInline=true;
+    v.setAttribute('playsinline','');
+    v.setAttribute('webkit-playsinline','');
+    v.style.cssText='position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+    document.body.appendChild(v);
+
+    let done=false, url=null;
+    const fail=(msg)=>{ if(done)return; done=true; cleanupVid(v,url); reject(new Error(msg)); };
+    const ok=(dur)=>{ if(done)return; done=true; resolve({duration:dur, w:v.videoWidth||1280, h:v.videoHeight||720, url, el:v}); };
+
+    v.onerror=()=>{
+      const me=v.error; const code=me?me.code:0;
+      // MediaError: 1=ABORTED 2=NETWORK 3=DECODE 4=SRC_NOT_SUPPORTED
+      console.warn('video error code',code, me&&me.message, 'src type', v.src.slice(0,12));
+      document.getElementById('vidMeta').textContent = 'video error code '+code+(code===4?' (format unsupported — likely HEVC)':code===3?' (decode failed)':'');
+      // First failure may be a sandbox blocking blob: — retry once with a data URL.
+      if(v.src.startsWith('blob:') && !v._triedData){
+        v._triedData=true;
+        const fr=new FileReader();
+        fr.onload=()=>{ url=null; v.src=fr.result; v.load(); };
+        fr.onerror=()=>fail('meta-error');
+        fr.readAsDataURL(file);
+      } else { fail('code'+code); }
+    };
+
+    const tryResolve=()=>{
+      let d = v.duration;
+      if(!isFinite(d) || d<=0){
+        v.onseeked=()=>{ v.onseeked=null; const dd=isFinite(v.duration)&&v.duration>0?v.duration:(v.currentTime||5); try{v.currentTime=0}catch(_){}; ok(dd); };
+        try{ v.currentTime=1e6; }catch(_){ ok(5); }
+      } else { ok(d); }
+    };
+    v.onloadeddata=tryResolve;
+    v.onloadedmetadata=()=>{ setTimeout(()=>{ if(!done && (v.videoWidth||v.duration)) tryResolve(); },1200); };
+    setTimeout(()=>fail('meta-timeout'),25000);
+
+    // Try blob URL first (fast, low memory); onerror falls back to data URL.
+    try{ url=URL.createObjectURL(file); v.src=url; }catch(_){ 
+      const fr=new FileReader(); fr.onload=()=>{ v.src=fr.result; v.load(); }; fr.onerror=()=>fail('meta-error'); fr.readAsDataURL(file); return;
+    }
+    v.load();
+  });
+}
+function cleanupVid(v,url){ try{if(url)URL.revokeObjectURL(url)}catch(_){}; try{v.remove()}catch(_){}; }
+
+async function handleVideo(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const prog = document.getElementById('vidProgress');
+  const stat = document.getElementById('vidStatus');
+  prog.classList.add('show');
+  const bar=document.getElementById('vidBar'),pct=document.getElementById('vidPct');
+  const setP=(p,t)=>{bar.style.width=p+'%';pct.textContent=Math.round(p)+'%';if(t)stat.textContent=t};
+
+  const sizeMB = file.size/1048576;
+  const count = parseInt(document.getElementById('frameCount').value,10);
+  const res = parseInt(document.getElementById('frameRes').value,10);
+  const method = document.getElementById('extractMethod').value;
+
+  state.frames=[];
+  let meta=null;
+
+  // Step 1: try to read metadata via <video>. If this fails, we go straight to ffmpeg.
+  setP(4,'Reading video info…');
+  try{
+    meta = await getVideoMeta(file);
+    document.getElementById('vidMeta').textContent =
+      `${meta.duration.toFixed(1)}s · ${meta.w}×${meta.h} · ${sizeMB.toFixed(1)} MB`;
+  }catch(metaErr){
+    console.warn('meta failed:',metaErr.message);
+    document.getElementById('vidMeta').textContent = `${sizeMB.toFixed(1)} MB · browser can't decode → using ffmpeg`;
+  }
+
+  // Step 2: pick a path.
+  try{
+    if(method==='seek' && meta){
+      // Seek path (browser can decode it)
+      try{
+        await extractBySeek(file, meta, count, res, setP);
+      }catch(seekErr){
+        console.warn('seek failed, ffmpeg fallback:',seekErr.message);
+        if(sizeMB>300) throw new Error('Big video and browser decode failed. Re-export as MP4 (H.264) under 300MB.');
+        setP(10,'Switching to ffmpeg…');
+        await extractByFFmpeg(file, {duration:meta.duration}, count, res, setP);
+      }
+    } else {
+      // No meta OR ffmpeg chosen → ffmpeg reads the file itself (works for HEVC too)
+      if(sizeMB>300) throw new Error('Browser can’t decode this and it’s too big for ffmpeg (>300MB). Re-export as MP4 (H.264), shorter or smaller.');
+      setP(10, meta?'Extracting with ffmpeg…':'Browser decode failed — using ffmpeg…');
+      await extractByFFmpeg(file, {duration: meta?meta.duration:0}, count, res, setP);
+    }
+
+    if(state.frames.length===0) throw new Error('No frames captured — try a different clip');
+    setP(100,`Done — ${state.frames.length} frames`);
+    const totalKB = Math.round(state.frames.reduce((a,f)=>a+f.length,0)/1024);
+    toast('🎬','Scroll hero ready', `${state.frames.length} frames · ~${totalKB} KB baked in. Scroll the preview.`);
+    render();
+    setTimeout(()=>prog.classList.remove('show'),1800);
+
+  }catch(err){
+    console.error(err);
+    const hint = err.message||'Try a shorter MP4 (H.264).';
+    stat.textContent='Failed — '+hint;
+    toast('⚠️','Couldn’t process video', hint);
+  }finally{
+    if(meta&&meta.el) cleanupVid(meta.el, meta.url);
+  }
+}
+function blobToDataURL(blob){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob)})}
+
+/* Seek-sampling: decode via a <video> in the DOM and grab evenly-spaced frames.
+   iOS-robust: waits for seek settle, guards against Infinity duration + stalls. */
+function extractBySeek(file, meta, count, targetW, setP){
+  return new Promise((resolve,reject)=>{
+    const v = meta.el;
+    const scale = Math.min(1, targetW / (meta.w||targetW));
+    const cw = Math.round((meta.w||targetW)*scale) || targetW;
+    const ch = Math.round((meta.h||Math.round(targetW*0.5625))*scale) || Math.round(targetW*0.5625);
+    const cv = document.createElement('canvas'); cv.width=cw; cv.height=ch;
+    const cx = cv.getContext('2d');
+    const q = parseFloat(document.getElementById('jpgQ').value)||0.7;
+    state.frames = [];
+    const thumbs = document.getElementById('vidThumbs'); thumbs.innerHTML='';
+    const dur = (isFinite(meta.duration)&&meta.duration>0)?meta.duration:5;
+    const times = [];
+    const denom = count>1?(count-1):1;
+    for(let i=0;i<count;i++){ times.push( (0.02 + 0.96*(i/denom)) * dur ); }
+
+    let i=0, stallTimer=null;
+    const grab=()=>{
+      try{ cx.drawImage(v,0,0,cw,ch); }catch(err){ return finish(reject,new Error('Frame draw failed (video may be DRM-protected)')); }
+      let uri; try{ uri = cv.toDataURL('image/jpeg', q); }catch(err){ return finish(reject,new Error('Canvas export blocked')); }
+      state.frames.push(uri);
+      if(i%6===0){ const im=new Image(); im.src=uri; im.style.width='44px'; thumbs.appendChild(im); }
+      setP(8 + (i/count)*90, `Capturing ${i+1}/${count}`);
+      i++;
+      if(i<count){ seekTo(times[i]); }
+      else { finish(resolve); }
+    };
+    const onSeeked=()=>{ clearTimeout(stallTimer); requestAnimationFrame(()=>requestAnimationFrame(grab)); };
+    const seekTo=(t)=>{
+      clearTimeout(stallTimer);
+      // if a seek stalls (iOS sometimes silently drops), skip forward.
+      stallTimer=setTimeout(()=>{ if(i<count){ i++; if(i<count) seekTo(times[i]); else finish(resolve); } }, 4000);
+      try{ v.currentTime = Math.min(t, dur-0.05); }catch(err){ finish(reject,new Error('Seek failed on this video')); }
+    };
+    const finish=(fn,arg)=>{ clearTimeout(stallTimer); v.removeEventListener('seeked',onSeeked); fn(arg); };
+    v.addEventListener('seeked',onSeeked);
+    v.addEventListener('error',()=>finish(reject,new Error('Decode error during capture')));
+    // kick off
+    seekTo(times[0]);
+  });
+}
+
+/* ffmpeg path: higher-fidelity, better for SHORT videos. Now duration-aware. */
+let ffmpegLoaded=false;
+async function extractByFFmpeg(file, meta, count, targetW, setP){
+  const sizeMB = file.size/1048576;
+  if(sizeMB>250) throw new Error('Too big for ffmpeg mode ('+sizeMB.toFixed(0)+'MB). Use Seek mode.');
+  if(!ffmpeg){
+    setP(6,'Loading engine…');
+    const { createFFmpeg } = FFmpeg;
+    ffmpeg = createFFmpeg({ log:false, corePath:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js' });
+    await ffmpeg.load();
+    ffmpegLoaded=true;
+  }
+  setP(14,'Loading video…');
+  const { fetchFile } = FFmpeg;
+  ffmpeg.FS('writeFile','in.mp4', await fetchFile(file));
+  // rate = frames spread across the REAL duration, not a fixed 10s
+  const dur = (meta&&isFinite(meta.duration)&&meta.duration>0)?meta.duration:10;
+  const fps = (count / dur).toFixed(4);
+  setP(24,'Extracting frames…');
+  await ffmpeg.run('-i','in.mp4','-vf',`fps=${fps},scale=${targetW}:-1:flags=lanczos`,'-frames:v',String(count),'-q:v','6','f_%03d.jpg');
+  setP(66,'Encoding…');
+  state.frames=[];
+  const thumbs=document.getElementById('vidThumbs'); thumbs.innerHTML='';
+  for(let i=1;i<=count;i++){
+    let data; try{ data=ffmpeg.FS('readFile','f_'+String(i).padStart(3,'0')+'.jpg'); }catch(_){ break; }
+    const uri = await blobToDataURL(new Blob([data.buffer],{type:'image/jpeg'}));
+    state.frames.push(uri);
+    if(i%6===0){ const im=new Image(); im.src=uri; im.style.width='44px'; thumbs.appendChild(im); }
+    setP(66+(i/count)*32, `Encoding ${i}/${count}`);
+    try{ ffmpeg.FS('unlink','f_'+String(i).padStart(3,'0')+'.jpg'); }catch(_){}
+  }
+  try{ ffmpeg.FS('unlink','in.mp4'); }catch(_){}
+}
+
+/* ═══════════════════ DOMAIN ═══════════════════ */
+function randId(n=4){const c='abcdefghijklmnopqrstuvwxyz0123456789';let s='';for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+function previewDomain(roll){
+  const slug = (document.getElementById('slug').value||'site').toLowerCase().replace(/[^a-z0-9-]/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+  state.currentDomain = `${slug}-${randId()}.vercel.app`;
+  document.getElementById('domainPreview').value = state.currentDomain;
+  if(roll===true) toast('🎲','New domain',state.currentDomain);
+}
+
+/* ═══════════════════ SETTINGS (Vercel) ═══════════════════ */
+function openSettings(){
+  document.getElementById('vercelToken').value = localStorage.getItem('af_vercel_token')||'';
+  document.getElementById('deployEndpoint').value = localStorage.getItem('af_deploy_endpoint')||'';
+  document.getElementById('settingsModal').style.display='flex';
+}
+function closeSettings(){document.getElementById('settingsModal').style.display='none'}
+function saveSettings(){
+  const token=document.getElementById('vercelToken').value.trim();
+  const endpoint=document.getElementById('deployEndpoint').value.trim();
+  // Guard: the endpoint MUST be a real https URL ending in /api/deploy, not an email or text.
+  if(endpoint){
+    if(!/^https?:\/\//i.test(endpoint) || endpoint.includes('@') || endpoint.includes(' ')){
+      toast('⚠️','That\u2019s not a valid endpoint', 'The endpoint must be a URL like <b>https://your-project.vercel.app/api/deploy</b> — not an email or token. Leave it blank and use ⬇️ Download instead if you haven\u2019t deployed api/deploy.js yet.');
+      return;
+    }
+  }
+  localStorage.setItem('af_vercel_token',token);
+  localStorage.setItem('af_deploy_endpoint',endpoint);
+  closeSettings();
+  toast('⚙️','Saved', endpoint?'One-click Publish is set up.':'No endpoint set — use ⬇️ Download to deploy.');
+}
+
+/* ═══════════════════ PUBLISH ═══════════════════ */
+async function publish(){
+  previewDomain(); // fresh domain every publish
+  const btn = document.getElementById('publishBtn');
+  btn.disabled=true; btn.textContent='⏳ Publishing…';
+  const files = generateAllPages();
+  // Prefer the manually-set endpoint; otherwise, if this builder is itself hosted
+  // (not a file:// or blob: page), call /api/deploy on its OWN domain automatically.
+  let endpoint = localStorage.getItem('af_deploy_endpoint');
+  if(!endpoint && (location.protocol==='https:'||location.protocol==='http:') && location.hostname){
+    endpoint = location.origin + '/api/deploy';
+  }
+  const token = localStorage.getItem('af_vercel_token');
+  const slug = (document.getElementById('slug').value||'site').toLowerCase().replace(/[^a-z0-9-]/g,'-');
+  const project = state.currentDomain.replace('.vercel.app','');
+
+  // Size guard. Frames deploy as separate files now, but the whole payload
+  // still travels in one request, so keep a safety ceiling.
+  const payloadMB = JSON.stringify(files).length / 1048576;
+  if(payloadMB > 45){
+    btn.disabled=false; btn.textContent='🚀 Publish';
+    toast('⚠️','Video too large', `This video makes a ${payloadMB.toFixed(0)}MB upload. Lower frames/width/quality in Video scroll hero, then Publish again.`);
+    return;
+  }
+
+  try{
+    if(endpoint){
+      // Real deploy — POST to the serverless function. Token comes from the
+      // backend's VERCEL_TOKEN env var, so we don't strictly need it here.
+      const res = await fetch(endpoint,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ project, token, files })
+      });
+      if(res.status===413){
+        throw new Error(`Site too big (${payloadMB.toFixed(1)}MB). Reduce the video (fewer frames / lower width / lower quality) or remove it.`);
+      }
+      if(!res.ok){
+        let detail=''; try{ const e=await res.json(); detail=e.error||''; }catch(_){}
+        throw new Error('Publish failed ('+res.status+')'+(detail?': '+detail:''));
+      }
+      const data = await res.json();
+      const liveUrl = data.url ? (data.url.startsWith('http')?data.url:'https://'+data.url) : 'https://'+state.currentDomain;
+      showPublished(liveUrl);
+    }else{
+      // Demo mode — NO real deploy happened. Make this unmistakable.
+      await new Promise(r=>setTimeout(r,700));
+      showPublishedDemo(state.currentDomain);
+    }
+  }catch(err){
+    console.error(err);
+    toast('⚠️','Publish failed', err.message);
+  }finally{
+    btn.disabled=false; btn.textContent='🚀 Publish';
+  }
+}
+function showPublished(url, demo){
+  document.getElementById('urlPill').innerHTML = `🟢 <a href="${url}" target="_blank">${url}</a>`;
+  toast('🚀','Live!', `<a href="${url}" target="_blank">${url}</a>`);
+}
+function showPublishedDemo(fakeDomain){
+  document.getElementById('urlPill').innerHTML = `⚠️ demo only — not live`;
+  toast('🧪','Demo mode — nothing was deployed', `This would be <b>${fakeDomain}</b>, but no Vercel endpoint is set up, so <b>nothing was actually published</b> (that URL will 404).<br><br>To deploy for real, open ⚙️ Vercel and add your endpoint + token. Or use <b>Download</b> and upload the files to Vercel yourself.`);
+}
+
+/* Download all 6 pages as a zip you can drag into Vercel / any host. */
+/* Start a fresh website — clears content, image, video, resets fields. */
+function newWebsite(){
+  if(!confirm('Start a new website? This clears the current content.')) return;
+  // reset content store to blank-ish defaults
+  const defaults={
+    siteName:'My Business', heroTitle:'Welcome', heroSub:'A short line about what you do.',
+    heroBadge:'', ctaText:'Get in touch', ctaText2:'', heroAlign:'center'
+  };
+  Object.entries(defaults).forEach(([id,v])=>{ const el=document.getElementById(id); if(el) el.value=v; });
+  // reset editable content store C to its original defaults
+  for(const k in C){ if(C_DEFAULTS[k]!==undefined) C[k]=C_DEFAULTS[k]; }
+  // clear image + video + reset domain
+  state.storyImage=''; state.frames=[]; state.previewPage='index.html';
+  const u=document.getElementById('storyImgUrl'); if(u)u.value='';
+  const vm=document.getElementById('vidMeta'); if(vm)vm.textContent='none';
+  const th=document.getElementById('vidThumbs'); if(th)th.innerHTML='';
+  toggleStoryActions&&toggleStoryActions();
+  previewDomain();
+  buildContentFields&&buildContentFields();
+  render();
+  toast('✨','New website','Cleared — start fresh. Edit content, then Publish.');
+}
+
+async function downloadSite(){
+  const btn=event&&event.target; if(btn){btn.disabled=true;btn.textContent='⏳ Zipping…';}
+  try{
+    const files = generateAllPages();
+    if(!window.JSZip){
+      await new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';s.onload=res;s.onerror=rej;document.head.appendChild(s);});
+    }
+    const zip=new JSZip();
+    Object.entries(files).forEach(([name,content])=>{
+      if(content && typeof content==='object' && content.encoding==='base64'){
+        zip.file(name, content.data, {base64:true});
+      } else {
+        zip.file(name, content);
+      }
+    });
+    const blob=await zip.generateAsync({type:'blob'});
+    const slug=(document.getElementById('slug').value||'site').toLowerCase().replace(/[^a-z0-9-]/g,'-');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=slug+'-website.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    toast('⬇️','Downloaded', `${slug}-website.zip (6 pages). Unzip and drag the folder into vercel.com to deploy.`);
+  }catch(err){
+    console.error(err);
+    toast('⚠️','Download failed', err.message||'Try again.');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='⬇️ Download';}
+  }
+}
+
+/* ═══════════════════ SITE GENERATOR ═══════════════════ */
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function bgMarkup(){
+  const b = BACKGROUNDS[state.bg];
+  if(state.bg==='blobs'){
+    return {css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#07080F;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:float 14s ease-in-out infinite alternate}
+.b1{width:46vw;height:46vw;background:var(--accent);top:-10%;left:-8%}
+.b2{width:38vw;height:38vw;background:#A259FF;bottom:-12%;right:-6%;animation-delay:-6s}
+.b3{width:30vw;height:30vw;background:#00E5A0;top:40%;left:55%;animation-delay:-10s;opacity:.35}
+@keyframes float{to{transform:translate(6%,5%) scale(1.15)}}`,
+      html:`<div class="bg-layer"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>`};
+  }
+  if(state.bg==='particles'){
+    return {css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#07080F}#pcanvas{position:fixed;inset:0;z-index:-1}`,
+      html:`<div class="bg-layer"></div><canvas id="pcanvas"></canvas>`,
+      js:`(function(){const c=document.getElementById('pcanvas'),x=c.getContext('2d');let w,h,P=[];function rz(){w=c.width=innerWidth;h=c.height=innerHeight}rz();addEventListener('resize',rz);for(let i=0;i<70;i++)P.push({x:Math.random()*w,y:Math.random()*h,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.4});function loop(){x.clearRect(0,0,w,h);x.fillStyle='rgba(232,234,246,.6)';P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>w)p.vx*=-1;if(p.y<0||p.y>h)p.vy*=-1;x.beginPath();x.arc(p.x,p.y,p.r,0,7);x.fill()});requestAnimationFrame(loop)}loop()})();`};
+  }
+  if(state.bg==='grain'){
+    return {css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#0b0d1a}.bg-layer::after{content:'';position:fixed;inset:0;z-index:-1;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}`,
+      html:`<div class="bg-layer"></div>`};
+  }
+  if(state.bg==='squares'){
+    // Interactive moving grid + hover glow cell + grain + vignette
+    const acc = hexToRgb(state.accent);
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#060010}
+#sqGrid,#sqHover,#sqNoise{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none}
+#sqGrid{z-index:-2}
+#sqHover{z-index:-1}
+#sqNoise{z-index:-1;image-rendering:pixelated;opacity:.5}
+.sq-spot{position:fixed;inset:0;z-index:-2;pointer-events:none;background:radial-gradient(circle 620px at 50% 200px,rgba(${acc},.35),transparent 70%)}`,
+      html:`<div class="bg-layer"></div><div class="sq-spot"></div><canvas id="sqGrid"></canvas><canvas id="sqHover"></canvas><canvas id="sqNoise"></canvas>`,
+      js:`(function(){
+var SS=44,SPEED=.6,off={x:0,y:0},ACC='${state.accent}';
+function ov(o,c){return {x:-((o.x%c)+c)%c,y:-((o.y%c)+c)%c}}
+function hidpi(cv){var cx=cv.getContext('2d');var dpr=Math.max(1,Math.min(2,devicePixelRatio||1));cv.width=Math.floor(innerWidth*dpr);cv.height=Math.floor(innerHeight*dpr);cx.setTransform(dpr,0,0,dpr,0,0);return cx}
+var g=document.getElementById('sqGrid'),gx=hidpi(g);
+var h=document.getElementById('sqHover'),hx=hidpi(h);
+var n=document.getElementById('sqNoise'),nx=n.getContext('2d');n.width=1024;n.height=1024;
+var hover=null;
+addEventListener('resize',function(){gx=hidpi(g);hx=hidpi(h)});
+addEventListener('mousemove',function(e){var o=ov(off,SS);hover={x:Math.floor((e.clientX-o.x)/SS),y:Math.floor((e.clientY-o.y)/SS)}});
+addEventListener('mouseleave',function(){hover=null});
+function grain(){var im=nx.createImageData(1024,1024),d=im.data;for(var i=0;i<d.length;i+=4){var v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=18}nx.putImageData(im,0,0)}
+var f=0;
+function loop(){
+ off.x=(off.x-SPEED+SS)%SS;off.y=(off.y-SPEED+SS)%SS;
+ var W=innerWidth,H=innerHeight,o=ov(off,SS);
+ gx.clearRect(0,0,W,H);gx.strokeStyle='rgba(255,255,255,.12)';
+ for(var x=o.x;x<W+SS;x+=SS){gx.beginPath();gx.moveTo(x+.5,0);gx.lineTo(x+.5,H);gx.stroke()}
+ for(var y=o.y;y<H+SS;y+=SS){gx.beginPath();gx.moveTo(0,y+.5);gx.lineTo(W,y+.5);gx.stroke()}
+ var gr=gx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.sqrt(W*W+H*H)/2);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'#060010');gx.fillStyle=gr;gx.fillRect(0,0,W,H);
+ hx.clearRect(0,0,W,H);
+ if(hover){var cx=o.x+hover.x*SS,cy=o.y+hover.y*SS;hx.save();hx.shadowBlur=18;hx.shadowColor=ACC;hx.fillStyle=hexA(ACC,.28);hx.fillRect(cx,cy,SS,SS);hx.restore();hx.lineWidth=1.25;hx.strokeStyle=ACC;hx.strokeRect(cx+.5,cy+.5,SS-1,SS-1)}
+ if(f%2===0)grain();f++;
+ requestAnimationFrame(loop);
+}
+function hexA(hex,a){var c=hex.replace('#','');var r=parseInt(c.substr(0,2),16),g2=parseInt(c.substr(2,2),16),b=parseInt(c.substr(4,2),16);return 'rgba('+r+','+g2+','+b+','+a+')'}
+loop();
+})();`};
+  }
+  if(state.bg==='shader'){
+    // WebGL waves shader (adapted). Falls back to aurora CSS if WebGL missing.
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#031926}#shaderCv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:-1}`,
+      html:`<div class="bg-layer"></div><canvas id="shaderCv"></canvas>`,
+      js:shaderJS(state.accent)
+    };
+  }
+  if(state.bg==='spotlight'){
+    const acc = state.accent;
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#020617}#spotNoise{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;image-rendering:pixelated;opacity:.5}
+.spot-rad{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(circle 560px at 50% 200px,${acc},transparent)}`,
+      html:`<div class="bg-layer"></div><div class="spot-rad"></div><canvas id="spotNoise"></canvas>`,
+      js:`(function(){var n=document.getElementById('spotNoise'),x=n.getContext('2d');n.width=1024;n.height=1024;var f=0;function grain(){var im=x.createImageData(1024,1024),d=im.data;for(var i=0;i<d.length;i+=4){var v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=18}x.putImageData(im,0,0)}function loop(){if(f%2===0)grain();f++;requestAnimationFrame(loop)}loop()})();`};
+  }
+  if(state.bg==='dotgrid'){
+    // WebGL animated dot grid (adapted). Falls back to solid if WebGL missing.
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#07100f}#dotCv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:-1}`,
+      html:`<div class="bg-layer"></div><canvas id="dotCv"></canvas>`,
+      js:dotGridJS(state.accent)
+    };
+  }
+  if(state.bg==='digits'){
+    // Canvas digit-stream (0s and 1s flowing along a snake path). Accent-tinted.
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#000}#digitCv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:-1}`,
+      html:`<div class="bg-layer"></div><canvas id="digitCv"></canvas>`,
+      js:digitStreamJS(state.accent)
+    };
+  }
+  if(state.bg==='floatpaths'){
+    // Animated SVG paths (adapted from the Floating Paths component). Accent-tinted.
+    const light = val('themeMode','dark')==='light';
+    const stroke = state.accent;
+    const baseBg = light ? '#F6F5F2' : '#050914';
+    let paths='';
+    for(let i=0;i<36;i++){
+      const d=`M-${380-i*5} -${189+i*6}C-${380-i*5} -${189+i*6} -${312-i*5} ${216-i*6} ${152-i*5} ${343-i*6}C${616-i*5} ${470-i*6} ${684-i*5} ${875-i*6} ${684-i*5} ${875-i*6}`;
+      const w=(0.5+i*0.03).toFixed(2);
+      const op=(0.1+i*0.03).toFixed(2);
+      const dur=(20+i*0.6).toFixed(1);
+      paths+=`<path d="${d}" stroke="${stroke}" stroke-width="${w}" stroke-opacity="${op}" fill="none" style="animation:fpdash ${dur}s linear infinite;animation-delay:-${(i*0.4).toFixed(1)}s"/>`;
+    }
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:${baseBg}}
+#fpSvg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+#fpSvg path{stroke-dasharray:1000;stroke-dashoffset:0}
+@keyframes fpdash{0%{stroke-dashoffset:1000;opacity:.3}50%{opacity:.6}100%{stroke-dashoffset:0;opacity:.3}}`,
+      html:`<div class="bg-layer"></div><svg id="fpSvg" viewBox="0 0 696 316" fill="none" preserveAspectRatio="xMidYMid slice">${paths}</svg>`
+    };
+  }
+  if(state.bg==='crystal'){
+    // Mouse-trail crystals (pure canvas). Accent-tinted.
+    const rgb=hexToRgb(state.accent);
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#0a0514}#crystalCv{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:-1}`,
+      html:`<div class="bg-layer"></div><canvas id="crystalCv"></canvas>`,
+      js:`(function(){
+var cv=document.getElementById('crystalCv'),ctx=cv.getContext('2d');var RGB='${rgb}',MAX=500;
+var w,h;function rz(){w=cv.width=innerWidth;h=cv.height=innerHeight}rz();addEventListener('resize',rz);
+var crystals=[];
+function Crystal(x,y){this.x=x;this.y=y;this.life=1;this.size=Math.random()*8+4;this.angle=Math.random()*Math.PI*2;this.spin=(Math.random()-0.5)*0.1;this.v=[];var n=Math.floor(Math.random()*3)+3;for(var i=0;i<n;i++){var a=(i/n)*Math.PI*2,r=Math.random()*this.size+this.size/2;this.v.push({x:Math.cos(a)*r,y:Math.sin(a)*r})}}
+Crystal.prototype.update=function(){this.life-=0.01;this.angle+=this.spin};
+Crystal.prototype.draw=function(){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.angle);ctx.beginPath();ctx.moveTo(this.v[0].x,this.v[0].y);for(var i=1;i<this.v.length;i++)ctx.lineTo(this.v[i].x,this.v[i].y);ctx.closePath();ctx.strokeStyle='rgba('+RGB+','+(this.life*0.8)+')';ctx.lineWidth=1;ctx.stroke();ctx.fillStyle='rgba('+RGB+','+(this.life*0.12)+')';ctx.fill();ctx.restore()};
+var last={x:w/2,y:h/2};
+addEventListener('mousemove',function(e){var cur={x:e.clientX,y:e.clientY},sp=Math.hypot(cur.x-last.x,cur.y-last.y),n=Math.min(Math.floor(sp/5),5);for(var i=0;i<n;i++){if(crystals.length<MAX)crystals.push(new Crystal(e.clientX,e.clientY))}last=cur});
+addEventListener('touchmove',function(e){var t=e.touches[0];if(!t)return;for(var i=0;i<3;i++){if(crystals.length<MAX)crystals.push(new Crystal(t.clientX,t.clientY))}},{passive:true});
+function loop(){ctx.fillStyle='rgba(10,5,20,0.15)';ctx.fillRect(0,0,w,h);crystals=crystals.filter(function(c){return c.life>0});for(var i=0;i<crystals.length;i++){crystals[i].update();crystals[i].draw()}requestAnimationFrame(loop)}loop();
+})();`};
+  }
+  if(state.bg==='bubbles2'){
+    // p5.js aether-bubble grid (loads p5 from CDN). Falls back to blobs if p5 fails.
+    return {
+      css:`.bg-layer{position:fixed;inset:0;z-index:-2;background:#0a0a16}#bubbleWrap{position:fixed;inset:0;z-index:-1;overflow:hidden}#bubbleWrap canvas{width:100%!important;height:100%!important;display:block}`,
+      html:`<div class="bg-layer"></div><div id="bubbleWrap"></div>`,
+      js:bubbleSketchJS(state.accent)
+    };
+  }
+  // static-css backgrounds
+  return {css:`.bg-layer{position:fixed;inset:0;z-index:-2;${b.css}}`,html:`<div class="bg-layer"></div>`};
+}
+
+/* p5.js bubble sketch (adapted). Loads p5 from CDN, fills viewport, accent-tinted base. */
+function bubbleSketchJS(accent){
+  return `(function(){
+function start(){
+var wrap=document.getElementById('bubbleWrap');if(!wrap||!window.p5)return;
+new p5(function(p){
+var bubbles=[],colors=['#3A86FF','#FF006E','#8338EC','#FB5607','#00AFB9','#3DB9CC'];
+function ease(x){return 1-Math.pow(1-x,5)}
+function link(x1,y1,d1,x2,y2,d2,dst){var r=dst/2,r1=d1/2,r2=d2/2,R1=r1+r,R2=r2+r,dx=x2-x1,dy=y2-y1,d=p.sqrt(dx*dx+dy*dy);if(d>R1+R2)return;var dirX=dx/d,dirY=dy/d,a=(R1*R1-R2*R2+d*d)/(2*d),ur=R1*R1-a*a;if(ur<0)return;var hh=p.sqrt(ur),mx=x1+dirX*a,my=y1+dirY*a,px=-dirY*hh,py=dirX*hh,cx1=mx+px,cy1=my+py,cx2=mx-px,cy2=my-py;if(p.dist(cx1,cy1,cx2,cy2)<r*2)return;var a1=p.atan2(y1-cy1,x1-cx1),a2=p.atan2(y2-cy1,x2-cx1),a3=p.atan2(y2-cy2,x2-cx2),a4=p.atan2(y1-cy2,x1-cx2);if(a2<a1)a2+=p.TAU;p.colorMode(p.RGB,255,255,255,100);p.noFill();p.stroke(180,200,240,40);p.strokeWeight(0.8);p.beginShape();for(var i=a1;i<a2;i+=p.TAU/180)p.vertex(cx1+r*p.cos(i),cy1+r*p.sin(i));if(a4<a3)a4+=p.TAU;for(var j=a3;j<a4;j+=p.TAU/180)p.vertex(cx2+r*p.cos(j),cy2+r*p.sin(j));p.endShape()}
+function Wisp(x,y,d,r,hue){this.x=x;this.y=y;this.d=d;this.timer=0;this.endTime=Math.floor(p.random(60,200));this.ang=p.random(p.TAU);this.r=r;this.ox=x;this.oy=y;this.tx=x+r*p.cos(this.ang);this.ty=y+r*p.sin(this.ang);this.od=d;this.isDead=false;this.hue=hue}
+Wisp.prototype.show=function(){if(!this.isDead){p.colorMode(p.HSB,360,100,100,100);p.noStroke();p.fill(p.color(this.hue,40,95,70));p.circle(this.x,this.y,this.d)}};
+Wisp.prototype.move=function(){this.timer++;if(this.timer<this.endTime){var n=p.norm(this.timer,0,this.endTime);this.x=p.lerp(this.ox,this.tx,ease(n));this.y=p.lerp(this.oy,this.ty,ease(n));this.d=p.lerp(this.od,0,n)}if(this.timer>this.endTime)this.isDead=true};
+Wisp.prototype.run=function(){this.show();this.move()};
+function Bubble(x,y,d){this.x=x;this.y=y;this.d=d;this.cage=[];this.dst=d/2;this.hue=p.random(360)}
+Bubble.prototype.show=function(){p.push();p.translate(this.x,this.y);p.colorMode(p.HSB,360,100,100,100);p.noStroke();p.fill(p.color(this.hue,70,90,90));p.circle(0,0,this.d);for(var i=0;i<this.cage.length;i++)this.cage[i].run();for(var k=0;k<this.cage.length;k++)link(this.cage[k].x,this.cage[k].y,this.cage[k].d,0,0,this.d,this.dst);for(var m=0;m<this.cage.length;m++)if(this.cage[m].isDead){this.cage.splice(m,1);m--}if(p.random()<0.02)this.cage.push(new Wisp(0,0,this.d*p.random(0.25,0.75),this.d*p.random(0.75,1.25),this.hue));p.pop()};
+Bubble.prototype.run=function(){this.show()};
+p.setup=function(){var s=Math.max(window.innerWidth,window.innerHeight);p.createCanvas(s,s).parent(wrap);p.colorMode(p.HSB,360,100,100,100);var area=p.width*0.85,cc=8,cs=area/cc;for(var i=0;i<cc;i++)for(var j=0;j<cc;j++){var x=cs*i+cs/2+(p.width-area)/2,y=cs*j+cs/2+(p.height-area)/2;bubbles.push(new Bubble(x,y+cs*0.2,cs*0.4))}};
+p.draw=function(){p.background(10,10,22);for(var i=0;i<bubbles.length;i++)bubbles[i].run()};
+p.windowResized=function(){var s=Math.max(window.innerWidth,window.innerHeight);p.resizeCanvas(s,s)};
+});
+}
+if(window.p5){start();}
+else{var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js';s.onload=start;s.onerror=function(){var w=document.getElementById('bubbleWrap');if(w)w.style.background='radial-gradient(60% 60% at 30% 20%,rgba(91,95,255,.5),transparent),#0a0a16'};document.head.appendChild(s);}
+})();`;
+}
+
+function hexToRgb(hex){const c=hex.replace('#','');return `${parseInt(c.substr(0,2),16)},${parseInt(c.substr(2,2),16)},${parseInt(c.substr(4,2),16)}`}
+
+/* Animated dot-grid shader adapted from Paper Shaders (Apache-2.0). Accent tints dots. */
+function dotGridJS(accent){
+  const c=accent.replace('#','');
+  const ar=(parseInt(c.substr(0,2),16)/255).toFixed(3);
+  const ag=(parseInt(c.substr(2,2),16)/255).toFixed(3);
+  const ab=(parseInt(c.substr(4,2),16)/255).toFixed(3);
+  return `(function(){
+var cv=document.getElementById('dotCv');var gl=cv.getContext('webgl',{antialias:false});
+if(!gl){cv.style.background='#07100f';return;}
+var VERT='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+var FRAG='precision highp float;uniform vec2 R;uniform float T;'+
+'vec3 BG=vec3(0.027,0.062,0.074);vec3 A=vec3(0.082,0.368,0.458);vec3 B=vec3(${ar},${ag},${ab});vec3 W=vec3(0.925,0.996,1.0);'+
+'vec2 h22(vec2 p){float n=sin(dot(p,vec2(41.0,289.0)));return fract(vec2(15731.743,7892.321)*n);}'+
+'vec3 pal(float x){x=clamp(x,0.,1.);vec3 c=mix(A,B,smoothstep(0.,1.,clamp(x*2.,0.,1.)));c=mix(c,W,smoothstep(0.,1.,clamp(x*2.-1.,0.,1.)));return c;}'+
+'void main(){vec2 p=(gl_FragCoord.xy-0.5*R.xy)/min(R.x,R.y);p*=1.26;float cells=8.0+0.35*25.0;vec2 grid=p*cells;vec2 id=floor(grid);vec2 local=fract(grid)-0.5;vec2 shift=(h22(id+1.0)-0.5)*0.35*0.35;float wave=0.5+0.5*sin(id.x*0.6+id.y*0.4+T);float radius=mix(0.08,0.42,0.28)*mix(0.55,1.0,wave);float dm=1.0-smoothstep(radius*0.75,radius,length(local-shift));vec3 col=mix(BG,pal(wave),dm);col+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9,78.2)))*43758.5)-0.5)*0.042;gl_FragColor=vec4(clamp(col,0.,1.),1.);}';
+function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o}
+var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VERT));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FRAG));gl.linkProgram(pr);gl.useProgram(pr);
+var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+var lp=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+var uR=gl.getUniformLocation(pr,'R'),uT=gl.getUniformLocation(pr,'T');
+function rz(){var dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.max(1,cv.clientWidth*dpr);cv.height=Math.max(1,cv.clientHeight*dpr);gl.viewport(0,0,cv.width,cv.height)}
+addEventListener('resize',rz);rz();var s=performance.now();
+function loop(now){gl.uniform2f(uR,cv.width,cv.height);gl.uniform1f(uT,(now-s)/1000*.575);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+})();`;
+}
+
+/* Digit-stream canvas (0s & 1s flowing along a snake path). Accent tints sparks. */
+function digitStreamJS(accent){
+  const rgb=hexToRgb(accent);
+  return `(function(){
+var cv=document.getElementById('digitCv'),ctx=cv.getContext('2d');
+var TAU=Math.PI*2,W=2.4,W2=5.5,PH=-0.35,PH2=0.2,WY=3,AY=0.02,IDLE=160;
+var CR=${rgb.split(',')[0]},CG=${rgb.split(',')[1]},CB=${rgb.split(',')[2]};
+var N=Math.min(600, Math.round(innerWidth*innerHeight/2600));
+function pp(t,a){var a2=a*0.37;return{x:0.5+a*Math.sin((t*W+PH)*TAU)+a2*Math.sin((t*W2+PH2)*TAU),y:-0.06+t*1.12+AY*Math.sin(t*WY*TAU)}}
+function tan(t,a){var e=0.001,A=pp(Math.max(0,t-e),a),B=pp(Math.min(1,t+e),a),dx=B.x-A.x,dy=B.y-A.y,l=Math.hypot(dx,dy)||1;return{x:dx/l,y:dy/l}}
+var rand=function(a,b){return a+Math.random()*(b-a)};
+function rd(){return Math.random()<0.5?(Math.random()<0.5?'7':'0'):String(Math.floor(Math.random()*10))}
+function spawn(){var wide=Math.random()<0.28,t=Math.random();return{t:t,off:wide?rand(-0.16,0.16):rand(-0.03,0.03),speed:rand(0.0001,0.0004),size:Math.round(rand(7,13)),hue:rand(190,320),colorful:Math.random()<0.3&&t<0.55,life:rand(0.5,1),wAmp:rand(0.02,0.1),wFreq:rand(1.5,5),wPhase:rand(0,TAU),ch:rd(),dAx:rand(0.06,0.24)*(Math.random()<0.5?-1:1),dAy:rand(0.02,0.09)*(Math.random()<0.5?-1:1),dFx:rand(0.3,1.1),dFy:rand(0.3,1.1),dPx:rand(0,TAU),dPy:rand(0,TAU)}}
+var P=[];for(var i=0;i<N;i++)P.push(spawn());
+var w=0,h=0,dpr=Math.min(devicePixelRatio||1,1.75);
+function rz(){var r=cv.getBoundingClientRect();w=r.width;h=r.height;cv.width=Math.max(1,r.width*dpr);cv.height=Math.max(1,r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+rz();addEventListener('resize',rz);
+var bright=1,disperse=0,drift=0,flow=0,lastAct=0,lastSY=scrollY;
+function bump(d){flow+=d*0.0007*0.5;lastAct=performance.now()}
+addEventListener('scroll',function(){bump(scrollY-lastSY);lastSY=scrollY},{passive:true});
+addEventListener('wheel',function(e){bump(e.deltaY)},{passive:true});
+function frame(){requestAnimationFrame(frame);if(!w||!h)return;var amp=0.5*0.3,idle=performance.now()-lastAct>IDLE;bright+=((idle?0.6:1)-bright)*(idle?0.03:0.12);disperse+=((idle?1:0)-disperse)*(idle?0.01:0.06);drift+=0.02;var disp=disperse,dt=drift;
+ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(0,0,0,0.14)';ctx.fillRect(0,0,w,h);
+ctx.globalCompositeOperation='lighter';ctx.textAlign='center';ctx.textBaseline='middle';
+for(var k=0;k<P.length;k++){var pt=P[k];pt.t+=pt.speed*1;if(pt.t>=1)pt.t-=1;if(Math.random()<0.003)pt.ch=rd();var et=pt.t+flow;et-=Math.floor(et);var c=pp(et,amp),tn=tan(et,amp),wander=pt.wAmp*Math.sin(et*pt.wFreq*TAU+pt.wPhase),to=pt.off+wander,wx=disp*pt.dAx*Math.sin(dt*pt.dFx+pt.dPx),wy=disp*pt.dAy*Math.sin(dt*pt.dFy+pt.dPy),x=(c.x+-tn.y*to+wx)*w,y=(c.y+tn.x*to+wy)*h,cf=1-Math.min(1,Math.abs(to)/0.22),al=(0.25*cf*pt.life+0.02)*bright;ctx.font=pt.size+'px ui-monospace,Menlo,monospace';ctx.fillStyle=pt.colorful?'hsla('+pt.hue+',60%,66%,'+al+')':'rgba('+CR+','+CG+','+CB+','+al+')';ctx.fillText(pt.ch,x,y)}}
+requestAnimationFrame(frame);
+})();`;
+}
+
+/* Compact waves shader adapted from the 21st.dev export. Accent tints the palette. */
+function shaderJS(accent){
+  const c=accent.replace('#','');
+  const ar=(parseInt(c.substr(0,2),16)/255).toFixed(3);
+  const ag=(parseInt(c.substr(2,2),16)/255).toFixed(3);
+  const ab=(parseInt(c.substr(4,2),16)/255).toFixed(3);
+  return `(function(){
+var cv=document.getElementById('shaderCv');
+var gl=cv.getContext('webgl',{antialias:false});
+if(!gl){cv.style.background='radial-gradient(60% 60% at 30% 20%,rgba(91,95,255,.5),transparent),#031926';return;}
+var VERT='attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}';
+var FRAG='precision highp float;uniform vec2 R;uniform float T;'+
+'vec3 CA=vec3(0.011,0.109,0.149);vec3 CB=vec3(0.105,0.423,0.658);vec3 CC=vec3(${ar},${ag},${ab});vec3 CD=vec3(0.917,0.976,1.0);'+
+'float h(vec2 p){p=fract(p*vec2(234.34,435.345));p+=dot(p,p+34.23);return fract(p.x*p.y);}'+
+'float nz(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}'+
+'float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*nz(p);p=p*2.03+vec2(17,9.2);a*=.5;}return v;}'+
+'vec3 pal(float x){x=clamp(x,0.,1.);vec3 c=mix(CA,CB,smoothstep(0.,1.,clamp(x*3.,0.,1.)));c=mix(c,CC,smoothstep(0.,1.,clamp(x*3.-1.,0.,1.)));c=mix(c,CD,smoothstep(0.,1.,clamp(x*3.-2.,0.,1.)));return c;}'+
+'void main(){vec2 uv=gl_FragCoord.xy/R.xy;vec2 pp=(gl_FragCoord.xy-.5*R.xy)/min(R.x,R.y);pp*=2.0;pp+=0.042*(vec2(fbm(pp*1.5+4012.),fbm(pp*1.5+vec2(5.2,1.3)))-.5);float y=uv.y+sin(uv.x*8.0+T*.8)*.08+(fbm(pp*2.+T*.1)-.5)*.32;vec3 col=pal(y);col=(col-.5)*1.158+.5;float vd=length(uv-.5)*1.414;col*=1.-.21*smoothstep(.35,1.,vd);col+=(h(gl_FragCoord.xy)-.5)*.1;gl_FragColor=vec4(clamp(col,0.,1.),1.);}';
+function sh(t,s){var o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);return o}
+var pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VERT));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FRAG));gl.linkProgram(pr);gl.useProgram(pr);
+var b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+var lp=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(lp);gl.vertexAttribPointer(lp,2,gl.FLOAT,false,0,0);
+var uR=gl.getUniformLocation(pr,'R'),uT=gl.getUniformLocation(pr,'T');
+function rz(){var dpr=Math.min(devicePixelRatio||1,2);cv.width=Math.max(1,cv.clientWidth*dpr);cv.height=Math.max(1,cv.clientHeight*dpr);gl.viewport(0,0,cv.width,cv.height)}
+addEventListener('resize',rz);rz();
+var s=performance.now();
+function loop(now){gl.uniform2f(uR,cv.width,cv.height);gl.uniform1f(uT,-(now-s)/1000*.727);gl.drawArrays(gl.TRIANGLES,0,3);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+})();`;
+}
+
+function val(id,d){const e=document.getElementById(id);return e?e.value:d}
+
+/* Pages in the generated site */
+const PAGES = [
+  {file:'index.html',   nav:'Home',     title:'Home'},
+  {file:'about.html',   nav:'About',    title:'About'},
+  {file:'services.html',nav:'Services', title:'Services'},
+  {file:'gallery.html', nav:'Gallery',  title:'Gallery'},
+  {file:'pricing.html', nav:'Pricing',  title:'Pricing'},
+  {file:'contact.html', nav:'Contact',  title:'Contact'}
+];
+
+function siteVars(){
+  const v2=(id,d)=>esc(val(id,d));
+  return {
+    name:v2('siteName','Site'), title:v2('heroTitle',''), sub:v2('heroSub',''),
+    badge:v2('heroBadge',''), cta:v2('ctaText',''), cta2:v2('ctaText2',''),
+    align:val('heroAlign','center'), reveal:val('revealAnim','fade-up'),
+    fDisp:val('fontDisplay','Syne'), fBody:val('fontBody','Inter'),
+    hScale:val('headScale','5'), lSpace:val('letterSpace','-.03em'), tCase:val('textCase','none'),
+    secStyle:val('sectionStyle','cards'), secHead:v2('secHeading','Section'),
+    radius:val('radius','16'), cWidth:val('contentWidth','1100'), navStyle:val('navStyle','solid'),
+    cursorGlow:val('cursorGlow','off')==='on', hoverLift:val('hoverLift','on')==='on',
+    gradText:val('gradText','off')==='on', grainOv:val('grainOverlay','off')==='on',
+    mode:val('themeMode','dark'), accent:state.accent
+  };
+}
+
+/* Build ONE page. `pageFile` selects which of the 6 pages. */
+function generatePage(pageFile){
+  const S = siteVars();
+  const light = S.mode==='light';
+  const pageBg=light?'#F6F5F2':'#07080F', textCol=light?'#1a1a1f':'#E8EAF6';
+  const subCol=light?'rgba(26,26,31,.7)':'rgba(232,234,246,.85)';
+  const tileBg=light?'rgba(0,0,0,.03)':'rgba(255,255,255,.04)';
+  const tileBor=light?'rgba(0,0,0,.1)':'rgba(255,255,255,.08)';
+  const bg = bgMarkup();
+  // Video scroll hero only on the Home page.
+  const isHome = pageFile==='index.html';
+  const hasVideo = isHome && state.frames.length>0;
+  const fontLink=`https://fonts.googleapis.com/css2?family=${encodeURIComponent(S.fDisp)}:wght@600;800&family=${encodeURIComponent(S.fBody)}:wght@300;400;500&display=swap`;
+
+  // ── NAV (real links to the 6 files) ──
+  const nav = S.navStyle==='none' ? '' : `
+<header class="nav ${S.navStyle}"><a class="nav-logo" href="index.html">${S.name}</a>
+<nav class="nav-links">${PAGES.map(p=>`<a href="${p.file}"${p.file===pageFile?' class="active"':''}>${p.nav}</a>`).join('')}${S.cta?`<a class="nav-cta" href="contact.html">${S.cta}</a>`:''}</nav></header>`;
+  const navCss = S.navStyle==='none' ? '' : `
+.nav{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 7vw}
+.nav.glass{background:${light?'rgba(246,245,242,.7)':'rgba(7,8,15,.6)'};backdrop-filter:blur(16px);border-bottom:1px solid ${tileBor}}
+.nav.solid{background:${pageBg};border-bottom:1px solid ${tileBor}}
+.nav-logo{font-family:'${S.fDisp}',serif;font-weight:800;font-size:1.15rem;letter-spacing:.02em;color:${textCol};text-decoration:none}
+.nav-links{display:flex;gap:1.5rem;align-items:center}
+.nav-links a{color:${subCol};text-decoration:none;font-size:.88rem;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:${textCol}}
+.nav-cta{background:${S.accent};color:#fff!important;padding:.5rem 1.1rem;border-radius:${S.radius}px}
+@media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}`;
+
+  // ── PAGE BODY ──
+  const page = pageBody(pageFile, S, {light,pageBg,textCol,subCol,tileBg,tileBor,hasVideo});
+
+  // ── shared effects ──
+  const scrubCss = hasVideo ? `
+.scrub-hero{position:relative;height:${Math.max(300, state.frames.length*8)}vh}
+.scrub-hero canvas{position:sticky;top:0;width:100%;height:100vh;object-fit:cover;display:block}
+.scrub-overlay{position:fixed;top:0;left:0;right:0;height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 7vw;pointer-events:none;z-index:2}
+.scrub-overlay>*{pointer-events:auto}` : '';
+  const alignCss = S.align==='center'
+    ? `.hero-content{align-items:center;text-align:center}.hero-content h1,.hero-content p{margin-left:auto;margin-right:auto}`
+    : `.hero-content{align-items:flex-start;text-align:left}`;
+  const scrubJs = hasVideo ? `
+const FRAME_COUNT=${state.frames.length};
+const FRAMES=Array.from({length:FRAME_COUNT},(_,i)=>'frames/f'+i+'.jpg');
+const cv=document.getElementById('scrubCanvas'),cx=cv.getContext('2d'),hero=document.getElementById('scrubHero');
+const imgs=FRAMES.map(s=>{const i=new Image();i.src=s;return i});
+let ready=0;imgs.forEach(i=>i.onload=()=>{ready++;if(ready===1)size()});
+function size(){cv.width=innerWidth;cv.height=innerHeight;draw(cur)}
+addEventListener('resize',size);let cur=0;
+function draw(idx){const im=imgs[Math.max(0,Math.min(imgs.length-1,Math.round(idx)))];if(!im||!im.complete)return;const r=Math.max(cv.width/im.width,cv.height/im.height);const w=im.width*r,h=im.height*r;cx.drawImage(im,(cv.width-w)/2,(cv.height-h)/2,w,h)}
+function onScroll(){const rect=hero.getBoundingClientRect();const total=hero.offsetHeight-innerHeight;const p=Math.min(1,Math.max(0,(-rect.top)/total));cur=p*(imgs.length-1);draw(cur);const ov=document.querySelector('.scrub-overlay');if(ov)ov.style.opacity=String(1-Math.min(1,p*1.4))}
+addEventListener('scroll',onScroll,{passive:true});size();onScroll();` : '';
+  const revealJs = `
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14});
+document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));`;
+  const revealCss = S.reveal==='none' ? '' : `
+[data-reveal]{opacity:0;transition:opacity .8s ease,transform .8s ease,filter .8s ease}
+[data-reveal].in{opacity:1;transform:none;filter:none}
+${S.reveal==='fade-up'?'[data-reveal]{transform:translateY(40px)}':''}
+${S.reveal==='zoom'?'[data-reveal]{transform:scale(.9)}':''}
+${S.reveal==='slide-left'?'[data-reveal]{transform:translateX(-50px)}':''}
+${S.reveal==='blur'?'[data-reveal]{filter:blur(14px)}':''}`;
+  const cursorJs = S.cursorGlow ? `
+const cg=document.createElement('div');cg.className='cursor-glow';document.body.appendChild(cg);
+addEventListener('mousemove',e=>{cg.style.left=e.clientX+'px';cg.style.top=e.clientY+'px'});` : '';
+  const cursorCss = S.cursorGlow ? `.cursor-glow{position:fixed;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,${S.accent}33,transparent 70%);transform:translate(-50%,-50%);pointer-events:none;z-index:0;transition:.1s}` : '';
+  const grainCss = S.grainOv ? `body::after{content:'';position:fixed;inset:0;z-index:9;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}` : '';
+  const hoverCss = S.hoverLift ? `.tile:hover{transform:translateY(-6px);border-color:${S.accent}}` : '';
+  const pageTitle = PAGES.find(p=>p.file===pageFile).title;
+
+  return `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${S.name} · ${pageTitle}</title>
+<meta name="description" content="${S.name} — ${S.sub||pageTitle}">
+<link href="${fontLink}" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--accent:${S.accent};--r:${S.radius}px}
+html{scroll-behavior:smooth}
+body{background:${pageBg};color:${textCol};font-family:'${S.fBody}',sans-serif;line-height:1.6;overflow-x:hidden}
+.hero-content,.scrub-hero,section.content,.nav,footer{position:relative;z-index:1}
+${bg.css}
+${scrubCss}
+${alignCss}
+h1{font-family:'${S.fDisp}',serif;font-size:clamp(2.4rem,7vw,${S.hScale}rem);font-weight:800;letter-spacing:${S.lSpace};line-height:1.04;color:${textCol};max-width:16ch;text-transform:${S.tCase}}
+.gt{background:linear-gradient(120deg,${S.accent},${light?'#111':'#fff'});-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:${S.accent};margin-bottom:1.3rem}
+.hero-content p{color:${subCol};font-size:1.08rem;max-width:46ch;margin:1.4rem 0 2.2rem}
+.hero-btns{display:flex;gap:.8rem;flex-wrap:wrap}
+.cta{display:inline-block;background:${S.accent};color:#fff;text-decoration:none;font-weight:600;padding:.9rem 2rem;border-radius:var(--r);transition:transform .2s,box-shadow .2s;box-shadow:0 8px 30px rgba(0,0,0,.28)}
+.cta:hover{transform:translateY(-2px)}
+.cta-2{background:transparent;color:${textCol};border:1px solid ${tileBor};box-shadow:none}
+.plain-hero{min-height:${isHome?'100vh':'62vh'};display:flex;flex-direction:column;justify-content:center;padding:${isHome?'0':'12vh'} 7vw 4vh}
+${navCss}
+${page.css}
+${hoverCss}
+footer{text-align:center;padding:5vh 7vw;color:${subCol};font-size:.85rem;border-top:1px solid ${tileBor}}
+.foot-nav{display:flex;gap:1.2rem;justify-content:center;flex-wrap:wrap;margin-bottom:1rem}
+.foot-nav a{color:${subCol};text-decoration:none;font-size:.85rem}
+.foot-nav a:hover{color:${textCol}}
+${cursorCss}
+${grainCss}
+${revealCss}
+@media(max-width:640px){h1{font-size:2.3rem}}
+</style></head><body>
+${bg.html}
+${nav}
+${page.html}
+<footer>
+  <div class="foot-nav">${PAGES.map(p=>`<a href="${p.file}">${p.nav}</a>`).join('')}</div>
+  © ${new Date().getFullYear()} ${S.name} · Built with GetMyWebsite
+</footer>
+<script>${scrubJs}${revealJs}${cursorJs}${bg.js||''}<\/script>
+</body></html>`;
+}
+
+/* Build all 6 files → { 'index.html': '...', ... }
+   Video frames are added as separate files (frames/f0.jpg …) so the HTML stays
+   small and even long videos deploy without hitting the request size limit. */
+function generateAllPages(){
+  const files={};
+  PAGES.forEach(p=>{ files[p.file]=generatePage(p.file); });
+  // add each frame as its own file (strip the data: prefix → raw base64)
+  if(state.frames.length){
+    state.frames.forEach((uri,i)=>{
+      const comma=uri.indexOf(',');
+      files['frames/f'+i+'.jpg'] = { data: uri.slice(comma+1), encoding:'base64' };
+    });
+  }
+  return files;
+}
+
+/* Preview renders the currently-selected page. */
+function generateSite(){
+  return generatePage(state.previewPage||'index.html');
+}
+
+/* ── PER-PAGE BODY CONTENT ── */
+function pageBody(pageFile, S, o){
+  const ec = k => esc(C[k]||''); // escaped content getter
+  const heroBtns = `<div class="hero-btns">
+    ${S.cta?`<a class="cta" href="contact.html">${S.cta}</a>`:''}
+    ${S.cta2?`<a class="cta cta-2" href="services.html">${S.cta2}</a>`:''}
+  </div>`;
+  const headlineHTML = S.gradText ? `<span class="gt">${S.title}</span>` : S.title;
+
+  const innerHero = (h1,sub)=>`<section class="plain-hero hero-content">
+    <div data-reveal class="eyebrow">${S.name}</div>
+    <h1 data-reveal>${h1}</h1>
+    ${sub?`<p data-reveal>${sub}</p>`:''}
+  </section>`;
+
+  // Closing CTA band so inner pages end on a strong note, not abruptly.
+  const closingBand = `
+<section class="cta-band"><div data-reveal>
+  <h2>${ec('con_hero')}</h2>
+  <p>${ec('con_note')}</p>
+  <a class="cta" href="contact.html">${S.cta||'Contact us'}</a>
+</div></section>`;
+  const closingCss = `
+.cta-band{text-align:center;padding:14vh 7vw;background:linear-gradient(135deg,${S.accent}1c,transparent);border-top:1px solid ${o.tileBor}}
+.cta-band h2{font-family:'${S.fDisp}',serif;font-size:clamp(2rem,5vw,3.2rem);color:${o.textCol};margin-bottom:1rem}
+.cta-band p{color:${o.subCol};max-width:44ch;margin:0 auto 2rem}`;
+
+  if(pageFile==='index.html'){
+    const heroInner = `
+      ${S.badge?`<div class="eyebrow" data-reveal>${S.badge}</div>`:''}
+      <h1 data-reveal>${headlineHTML}</h1>
+      ${S.sub?`<p data-reveal>${S.sub}</p>`:''}
+      <div data-reveal>${heroBtns}</div>`;
+    const hero = o.hasVideo ? `
+<section class="scrub-hero" id="scrubHero"><canvas id="scrubCanvas"></canvas>
+  <div class="scrub-overlay hero-content">${heroInner}</div></section>`
+      : `<section class="plain-hero hero-content">${heroInner}</section>`;
+    const sec = buildSection(S.secStyle, S.secHead, {radius:S.radius,cWidth:S.cWidth,tileBg:o.tileBg,tileBor:o.tileBor,textCol:o.textCol,subCol:o.subCol,accent:S.accent,fDisp:S.fDisp,hoverLift:S.hoverLift});
+
+    // Full continuous homepage: hero → intro → services → stats → pricing → CTA → footer
+    const services3 = [1,2,3].map(n=>`<div class="tile" data-reveal><h3>${ec('serv_'+n+'t')}</h3><p>${ec('serv_'+n+'d')}</p></div>`).join('');
+    const plan=(n,feat)=>{
+      const feats=(C['price_'+n+'feats']||'').split('\n').filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('');
+      return `<div class="plan${feat?' featured':''}" data-reveal><h3>${ec('price_'+n+'name')}</h3><div class="price">${ec('price_'+n+'price')}</div><ul>${feats}</ul><a class="cta" href="pricing.html">${ec('price_'+n+'cta')}</a></div>`;
+    };
+    const homeSections = `
+<section class="content intro-sec"><div class="split">
+  <div class="imgcol${state.storyImage?' has-img':''}" data-reveal>${state.storyImage?`<img src="${state.storyImage}" alt="${ec('about_storyTitle')}">`:''}</div>
+  <div data-reveal><div class="eyebrow">${ec('about_heading')}</div><h2>${ec('about_storyTitle')}</h2><p>${ec('about_story1')}</p><p style="margin-top:1rem">${ec('about_story2')}</p><a class="cta cta-2" href="about.html" style="margin-top:1.5rem">Learn more</a></div>
+</div></section>
+
+<section class="content"><h2 data-reveal>${ec('serv_heading')}</h2><div class="grid grid3">${services3}</div>
+  <div style="text-align:center;margin-top:2.5rem"><a class="cta" href="services.html" data-reveal>View all services</a></div>
+</section>
+
+<section class="stats-band"><div class="stats-inner">
+  <div class="stat" data-reveal><div class="n">${ec('about_val1t')}</div><div class="l">${ec('about_val1d')}</div></div>
+  <div class="stat" data-reveal><div class="n">${ec('about_val2t')}</div><div class="l">${ec('about_val2d')}</div></div>
+  <div class="stat" data-reveal><div class="n">${ec('about_val3t')}</div><div class="l">${ec('about_val3d')}</div></div>
+</div></section>
+
+<section class="content"><h2 data-reveal style="text-align:center">${ec('price_heading')}</h2><div class="plans">${plan(1,false)}${plan(2,true)}${plan(3,false)}</div></section>
+
+<section class="cta-band"><div data-reveal>
+  <h2>${ec('con_hero')}</h2>
+  <p>${ec('con_note')}</p>
+  <a class="cta" href="contact.html">${S.cta||'Contact us'}</a>
+</div></section>`;
+
+    const homeCss = sec.css + `
+.split{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.split .imgcol{aspect-ratio:4/5;border-radius:${S.radius}px;background:linear-gradient(135deg,${S.accent},${S.accent}44);overflow:hidden;position:relative}
+.split .imgcol.has-img{background:${o.tileBg}}
+.split .imgcol img{width:100%;height:100%;object-fit:cover;display:block}
+.intro-sec{padding-top:16vh}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.4rem;margin-top:2.5rem}
+.stats-band{background:linear-gradient(135deg,${S.accent}18,transparent);border-top:1px solid ${o.tileBor};border-bottom:1px solid ${o.tileBor};padding:9vh 7vw}
+.stats-inner{max-width:${S.cWidth}px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
+.stat .n{font-family:'${S.fDisp}',serif;font-size:1.7rem;color:${o.textCol};font-weight:800;margin-bottom:.4rem}
+.stat .l{color:${o.subCol};font-size:.95rem}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.4rem;margin-top:2.5rem}
+.plan{background:${o.tileBg};border:1px solid ${o.tileBor};border-radius:${S.radius}px;padding:2rem}
+.plan.featured{border-color:${S.accent};box-shadow:0 12px 40px ${S.accent}22}
+.plan .price{font-family:'${S.fDisp}',serif;font-size:2.4rem;color:${o.textCol};font-weight:800;margin:.5rem 0}
+.plan ul{list-style:none;margin:1rem 0;color:${o.subCol};font-size:.9rem}
+.plan li{padding:.35rem 0;border-bottom:1px solid ${o.tileBor}}
+.cta-band{text-align:center;padding:14vh 7vw;background:linear-gradient(135deg,${S.accent}22,transparent)}
+.cta-band h2{font-family:'${S.fDisp}',serif;font-size:clamp(2rem,5vw,3.4rem);color:${o.textCol};margin-bottom:1rem}
+.cta-band p{color:${o.subCol};max-width:44ch;margin:0 auto 2rem}
+@media(max-width:700px){.split{grid-template-columns:1fr}}`;
+
+    return {css:homeCss, html:hero+sec.html+homeSections};
+  }
+
+  if(pageFile==='about.html'){
+    return {css:baseContentCss(S,o)+`
+.split{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;margin-top:2rem}
+.split .imgcol{aspect-ratio:4/5;border-radius:${S.radius}px;background:linear-gradient(135deg,${S.accent},${S.accent}55)}
+.vals{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.4rem;margin-top:1.5rem}
+@media(max-width:700px){.split{grid-template-columns:1fr}}`+closingCss,
+      html:innerHero(ec('about_heading'), S.sub)+`
+<section class="content"><div class="split">
+  <div class="imgcol" data-reveal></div>
+  <div data-reveal><h2>${ec('about_storyTitle')}</h2><p>${ec('about_story1')}</p><p style="margin-top:1rem">${ec('about_story2')}</p></div>
+</div>
+<div class="vals">
+  <div class="tile" data-reveal><h3>${ec('about_val1t')}</h3><p>${ec('about_val1d')}</p></div>
+  <div class="tile" data-reveal><h3>${ec('about_val2t')}</h3><p>${ec('about_val2d')}</p></div>
+  <div class="tile" data-reveal><h3>${ec('about_val3t')}</h3><p>${ec('about_val3d')}</p></div>
+</div></section>`+closingBand};
+  }
+
+  if(pageFile==='services.html'){
+    const items=[1,2,3,4,5,6].map(n=>`<div class="tile" data-reveal><h3>${ec('serv_'+n+'t')}</h3><p>${ec('serv_'+n+'d')}</p></div>`).join('');
+    return {css:baseContentCss(S,o)+`.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.4rem;margin-top:2.5rem}`+closingCss,
+      html:innerHero(ec('serv_hero'), S.sub)+`
+<section class="content"><h2 data-reveal>${ec('serv_heading')}</h2><div class="grid">${items}</div></section>`+closingBand};
+  }
+
+  if(pageFile==='gallery.html'){
+    return {css:baseContentCss(S,o)+`
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.5rem}
+.gal>div{aspect-ratio:3/4;border-radius:${S.radius}px;background:linear-gradient(135deg,${S.accent}88,${S.accent}22)}
+.gal>div:nth-child(3n+2){aspect-ratio:3/5}
+@media(max-width:640px){.gal{grid-template-columns:1fr 1fr}}`+closingCss,
+      html:innerHero(ec('gal_hero'), S.sub)+`
+<section class="content"><h2 data-reveal>${ec('gal_heading')}</h2><div class="gal">${Array(9).fill('<div data-reveal></div>').join('')}</div></section>`+closingBand};
+  }
+
+  if(pageFile==='pricing.html'){
+    const plan=(n,feat)=>{
+      const feats=(C['price_'+n+'feats']||'').split('\n').filter(x=>x.trim()).map(x=>`<li>${esc(x)}</li>`).join('');
+      return `<div class="plan${feat?' featured':''}" data-reveal><h3>${ec('price_'+n+'name')}</h3><div class="price">${ec('price_'+n+'price')}</div><ul>${feats}</ul><a class="cta" href="contact.html">${ec('price_'+n+'cta')}</a></div>`;
+    };
+    return {css:baseContentCss(S,o)+`
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.4rem;margin-top:2.5rem}
+.plan{background:${o.tileBg};border:1px solid ${o.tileBor};border-radius:${S.radius}px;padding:2rem}
+.plan.featured{border-color:${S.accent};box-shadow:0 12px 40px ${S.accent}22}
+.plan .price{font-family:'${S.fDisp}',serif;font-size:2.4rem;color:${o.textCol};font-weight:800;margin:.5rem 0}
+.plan ul{list-style:none;margin:1rem 0;color:${o.subCol};font-size:.9rem}
+.plan li{padding:.35rem 0;border-bottom:1px solid ${o.tileBor}}`+closingCss,
+      html:innerHero(ec('price_hero'), S.sub)+`
+<section class="content"><h2 data-reveal>${ec('price_heading')}</h2><div class="plans">
+  ${plan(1,false)}${plan(2,true)}${plan(3,false)}
+</div></section>`+closingBand};
+  }
+
+  // contact.html
+  const waDigits=(C.con_whatsapp||'').replace(/[^0-9]/g,'');
+  return {css:baseContentCss(S,o)+`
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.8rem;color:${o.subCol};margin-bottom:.4rem}
+.field input,.field textarea{width:100%;background:${o.light?'#fff':'#0b0d1a'};border:1px solid ${o.tileBor};border-radius:${S.radius}px;color:${o.textCol};padding:.8rem;font-family:inherit}
+.contact-info p{color:${o.subCol};margin:.6rem 0}
+@media(max-width:700px){.contact-grid{grid-template-columns:1fr}}`,
+    html:innerHero(ec('con_hero'), S.sub)+`
+<section class="content"><div class="contact-grid">
+  <div data-reveal><h2>${ec('con_formTitle')}</h2>
+    <div class="field"><label>Name</label><input type="text" placeholder="Your name"></div>
+    <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
+    <div class="field"><label>Message</label><textarea rows="4" placeholder="How can we help?"></textarea></div>
+    <a class="cta" href="mailto:${ec('con_email')}">${ec('con_btn')}</a>
+  </div>
+  <div class="contact-info" data-reveal><h2>${ec('con_infoTitle')}</h2>
+    <p>📧 ${ec('con_email')}</p>
+    <p>💬 WhatsApp: <a href="https://wa.me/${waDigits}" style="color:${S.accent};text-decoration:none">${ec('con_whatsapp')}</a></p>
+    <p>🌐 ${S.name}</p>
+    <p style="margin-top:1.5rem">${ec('con_note')}</p>
+  </div>
+</div></section>`};
+}
+
+function baseContentCss(S,o){
+  return `
+section.content{max-width:${S.cWidth}px;margin:0 auto;padding:12vh 7vw}
+.content h2{font-family:'${S.fDisp}',serif;font-size:clamp(1.9rem,4vw,3rem);color:${o.textCol};margin-bottom:1.2rem}
+.content p{color:${o.subCol}}
+.tile{background:${o.tileBg};border:1px solid ${o.tileBor};border-radius:${S.radius}px;padding:1.7rem;transition:transform .25s,border-color .25s}
+.tile h3{font-family:'${S.fDisp}',serif;color:${o.textCol};margin-bottom:.5rem;font-size:1.2rem}
+.tile p{color:${o.subCol};font-size:.92rem}`;
+}
+
+/* Section builder — 5 layouts */
+function buildSection(style, heading, o){
+  const wrap = (inner)=>`<section class="content" id="next"><h2 data-reveal>${heading}</h2>${inner}</section>`;
+  const baseCss = `
+section.content{max-width:${o.cWidth}px;margin:0 auto;padding:14vh 7vw}
+.content h2{font-family:'${o.fDisp}',serif;font-size:clamp(1.9rem,4vw,3.2rem);color:${o.textCol};margin-bottom:1.2rem}
+.tile{background:${o.tileBg};border:1px solid ${o.tileBor};border-radius:${o.radius}px;padding:1.7rem;transition:transform .25s,border-color .25s}
+.tile h3{font-family:'${o.fDisp}',serif;color:${o.textCol};margin-bottom:.5rem;font-size:1.2rem}
+.tile p{color:${o.subCol};font-size:.92rem}`;
+
+  if(style==='split'){
+    return {css:baseCss+`
+.split{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:center;margin-top:2rem}
+.split .imgcol{aspect-ratio:4/5;border-radius:${o.radius}px;background:linear-gradient(135deg,${o.accent},${o.accent}55)}
+.split p{color:${o.subCol};font-size:1.02rem}
+@media(max-width:700px){.split{grid-template-columns:1fr}}`,
+      html:wrap(`<div class="split"><div class="imgcol" data-reveal></div><div data-reveal><p>Every piece begins as a sketch and ends in your hands. We keep production small so nothing is rushed and nothing is wasted. This is craft made deliberately.</p></div></div>`)};
+  }
+  if(style==='stats'){
+    return {css:baseCss+`
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:2rem;margin-top:2.5rem}
+.stat .n{font-family:'${o.fDisp}',serif;font-size:2.8rem;color:${o.accent};font-weight:800}
+.stat .l{color:${o.subCol};font-size:.9rem}`,
+      html:wrap(`<div class="stats"><div class="stat" data-reveal><div class="n">12</div><div class="l">Years of craft</div></div><div class="stat" data-reveal><div class="n">4k+</div><div class="l">Pieces delivered</div></div><div class="stat" data-reveal><div class="n">100%</div><div class="l">Made to order</div></div></div>`)};
+  }
+  if(style==='gallery'){
+    return {css:baseCss+`
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:2.5rem}
+.gal>div{aspect-ratio:3/4;border-radius:${o.radius}px;background:linear-gradient(135deg,${o.accent}88,${o.accent}22)}
+.gal>div:nth-child(2){aspect-ratio:3/5;background:linear-gradient(135deg,${o.accent}55,${o.accent}11)}
+@media(max-width:640px){.gal{grid-template-columns:1fr 1fr}}`,
+      html:wrap(`<div class="gal">${Array(6).fill('<div data-reveal></div>').join('')}</div>`)};
+  }
+  if(style==='minimal'){
+    return {css:baseCss+`.statement{font-family:'${o.fDisp}',serif;font-size:clamp(1.6rem,3.5vw,2.6rem);line-height:1.4;color:${o.textCol};max-width:24ch;margin-top:1rem}`,
+      html:`<section class="content" id="next"><p class="statement" data-reveal>${heading}. Made slowly, worn for years, never mistaken for anyone else's.</p></section>`};
+  }
+  // cards (default)
+  return {css:baseCss+`.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.4rem;margin-top:2.5rem}`,
+    html:wrap(`<div class="grid"><div class="tile" data-reveal><h3>Tailoring</h3><p>Structured silhouettes cut for movement.</p></div><div class="tile" data-reveal><h3>Materials</h3><p>Natural fibres, sourced with intent.</p></div><div class="tile" data-reveal><h3>Craft</h3><p>Finished by hand, made to last.</p></div></div>`)};
+}
+
+/* ═══════════════════ RENDER PREVIEW ═══════════════════ */
+function render(){
+  const iframe = document.getElementById('preview');
+  iframe.srcdoc = generateSite();
+  buildPageTabs();
+}
+function buildPageTabs(){
+  const el=document.getElementById('pageTabs');
+  if(!el) return;
+  el.innerHTML = PAGES.map(p=>`<button class="${p.file===state.previewPage?'active':''}" onclick="switchPage('${p.file}')">${p.nav}</button>`).join('');
+}
+function switchPage(file){ state.previewPage=file; render(); buildContentFields(); }
+
+/* Render the editable fields for the currently-selected page */
+function buildContentFields(){
+  const wrap=document.getElementById('pageContentFields');
+  const lbl=document.getElementById('curPageLabel');
+  if(!wrap) return;
+  const page=PAGES.find(p=>p.file===state.previewPage);
+  if(lbl) lbl.textContent=page?page.nav:'Home';
+  const schema=CONTENT_SCHEMA[state.previewPage]||[];
+  wrap.innerHTML = schema.map(([key,label,type])=>{
+    if(type==='hint') return `<div class="note">${label}</div>`;
+    const v=(C[key]||'').replace(/"/g,'&quot;');
+    if(type==='area') return `<label class="fld">${label}</label><textarea oninput="updateC('${key}',this.value)">${C[key]||''}</textarea>`;
+    return `<label class="fld">${label}</label><input type="text" value="${v}" oninput="updateC('${key}',this.value)">`;
+  }).join('');
+}
+function updateC(key,value){ C[key]=value; render(); }
+
+/* ═══════════ HOME STORY IMAGE ═══════════ */
+function handleStoryImage(e){
+  const file=e.target.files[0];
+  if(!file) return;
+  if(file.size>4*1048576){ toast('⚠️','Image too big','Keep it under 4MB, or use a URL instead.'); return; }
+  const fr=new FileReader();
+  fr.onload=()=>{ state.storyImage=fr.result; const u=document.getElementById('storyImgUrl'); if(u)u.value=''; toggleStoryActions(); render(); toast('🖼️','Image added','Shows in the Home story section.'); };
+  fr.onerror=()=>toast('⚠️','Couldn\u2019t read image','Try another file or use a URL.');
+  fr.readAsDataURL(file);
+}
+function setStoryImageUrl(url){ state.storyImage=url.trim(); toggleStoryActions(); render(); }
+function clearStoryImage(){ state.storyImage=''; const u=document.getElementById('storyImgUrl'); if(u)u.value=''; const i=document.getElementById('storyImgInput'); if(i)i.value=''; toggleStoryActions(); render(); }
+function toggleStoryActions(){ const a=document.getElementById('storyImgActions'); if(a)a.style.display=state.storyImage?'block':'none'; }
+
+/* ═══════════════════ INIT ═══════════════════ */
+buildSwatches();
+buildBgGrid();
+previewDomain();
+render();
+buildContentFields();
+function toast(ic,title,msg){
+  const t=document.getElementById('toast');
+  document.querySelector('#toast .ic').textContent=ic;
+  document.getElementById('toastMsg').innerHTML=`<b>${title}</b>${msg||''}`;
+  t.classList.add('show');
+  clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),4500);
+}
+</script>
+</body>
+</html>
